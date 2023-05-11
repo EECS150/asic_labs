@@ -3,7 +3,7 @@
 Prof. Sophia Shao
 </p>
 <p align="center">
-TAs (ASIC): Dima Nikiforov
+TAs (ASIC): Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -24,15 +24,41 @@ Simulation is very important because it is used at multiple stages of the flow t
 We will focus on RTL, or Register Transfer Level, simulation in this lab, but we will also touch a bit on gate level simulation. 
 
 
-As with the previous lab, we will be using the Cory instructional machines (again, preferably `eda-[1-8].eecs.berkeley.edu`, but also `c111-[1-17].eecs.berkeley.edu`).
+As with the previous lab, we will be using the Cory instructional machines (again, preferably `eda-[1-12].eecs.berkeley.edu`, but also `c111-[1-17].eecs.berkeley.edu`).
 
-To begin this lab, get the project files (again, we recommend working in the `/scratch/<your login name>/`:
+To begin this lab, get the project files (again, we recommend working in the `/home/tmp/<your-eecs-username>/`:
 
 ```shell
-cd /scratch/<your login name>/
+cd /home/tmp/<your-eecs-username>/
 git clone /home/ff/eecs151/labs/lab2
 cd lab2
 ```
+
+## Submitting Your Jobs
+
+This semester, we will use a new Slurm cluster to manage all the workloads. Due
+to the high number of students, please do not run any compute-heavy jobs on the
+eda machines to avoid clogging up the login nodes, such as simulation,
+synthesis, or layout (Small scripts are okay). For the most part, Hammer 
+(a tool introduced in a later section of this lab) will take care of submitting 
+your jobs to the compute nodes through Slurm. The submission settings can be found 
+at the bottom of the `lab2/asap7.yml` file:
+
+```yaml
+vlsi.submit.command: "slurm"
+vlsi.submit.settings:
+  - slurm: {srun_binary: "srun", extra_args: []}
+```
+
+For more information on Slurm, please visit the [official
+documentation](https://slurm.schedmd.com/overview.html).
+
+The course staff will be closely monitoring the usage of our computing
+resources. If there are any improper uses (e.g., running a long RTL simulation
+on the eda machines), we may terminate your running jobs and notify you.
+
+****For this class, all `make` commands should be run on the SLURM cluster.**
+
 
 ## The ASIC Design Flow
 
@@ -100,12 +126,14 @@ the filter design itself, but it serves as a useful example of a digital circuit
 code. As such, Verilog code for this FIR filter is provided in the src folder.
 
 
+ 
+
 ## Simulation Environment
 
 We will be using Synopsys VCS as our Verilog simulator in this course.
 VCS works by compiling Verilog modules and generating a simulator binary file. 
 You can then execute that binary file to produce the desired outputs. 
-VCS is one of many Verilog simulators. Others include Cadence Incisive (formerly NCSim) and the open source Verilator.
+VCS is one of many Verilog simulators. Others include Cadence Xcelium (formerly Incisive) and the open source Verilator.
 The framework, mechanisms, and capabilities are quite similar between simulators.
 
 Each CAD tool, including simulators, are highly configurable and can take in tens or hundreds (or more) configuration options. 
@@ -189,12 +217,10 @@ To get started, let’s set up our environment. You will need to do this for eve
 which you use Hammer on the instructional machines:
 
 ```shell
-source /home/ff/eecs151/tutorials/eecs151.bashrc
-export HAMMER_HOME=/home/ff/eecs151/hammer
-source $HAMMER_HOME/sourceme.sh
+source /home/ff/eecs151/asic/eecs151.bashrc
 ```
 
-You may find it useful to add these commands to your `.bashrc` so you don't need to run them manually every time.
+You may find it useful to add this command to your `.bashrc` so you don't need to run it manually every time.
 
 Now, let’s run a basic RTL simulation and look at the terminal output:
 
@@ -224,13 +250,15 @@ bug that is hard to track down.
 the target working directory. sim is the action, so our simulation environment and results
 are in the `build/sim-rundir` folder. In that folder, you will see the binary executable: the
 simv file.
-8. This binary file is then executed with a TCL script argument `build/sim-rundir/run.tcl`,
-with the options `-ucli -do run.tcl`. This is enabled by the option `-P access.tab`.
-9. At the end, the simulation should report the observed values with the expected and actual
+8. At the end, the simulation should report the observed values with the expected and actual
 values at each timestep, and they should match. You can even automate the checking of these
 outputs in either the testbench itself or through parsing the output text directly, but that
 will be explained in more detail later.
 
+**Note**: If you rerun `make sim-rtl` without changing any code, the simulation
+does not run and the command seems to fail with an error.  You can disregard
+this error as this is simply VCS skipping redundant recompiling and re-running
+simulation for the same design.
 
 ## Viewing Waveforms
 
@@ -629,10 +657,10 @@ annotated switching activity onto the layout database, taking into account the c
 Voltus dumps reports in the `build/power-rundir` directory. There are results for static and active
 power analysis. The static power analysis (in `staticPowerReports` folder) by default assumes an
 average switching activity factor of 0.2 (nets switch 20% of the time), while the active power analysis
-(in `activePower.post-par-sim.ucli.saif` folder) uses the information from the SAIF. Depending
+(in `activePowerReports` folder) uses the information from the SAIF. Depending
 on the testbench, there could be a large difference between the static and active estimates.
 
-Open `build/power-rundir/activePower.post-par-sim.ucli.saif/PVT_0P77V_0C.hold_view.rpt`
+Open `build/power-rundir/activePowerReports/PVT_0P77V_0C.hold_view.rpt`
 and scroll to the bottom of the file. The total power is grouped into 3 types: internal, switching,
 and leakage power.
 
@@ -651,7 +679,7 @@ that our power is dominated by combinational logic.
 
 ### Question 6: Analyzing Power Reports
 
-**a.)** Also open up `build/power-rundir/activePower.post-par-sim.ucli.saif/PVT_0P63V_100C.setup_view.rpt`.
+**a.)** Also open up `build/power-rundir/activePowerReports/PVT_0P63V_100C.setup_view.rpt`.
 What is the most obvious difference in the power numbers
 compared to the hold view file? What do you think is the dominant factor contributing to this
 difference?
@@ -692,9 +720,12 @@ parameters (e.g. temperature, timing) must also be simulated to maximize product
 
 ## Lab Deliverables
 
-### Lab Due: 11:59 PM, Friday February 4th, 2022
+### Lab Due: 11:59 PM, 1 week after your registered lab section.
 
 - Submit a written report with all 6 questions answered to Gradescope
+
+
+**NOTE: Gradescope has multiple assignments for the various lab sections. Please only submit to your registered section.**
 
 ## Acknowledgement
 
@@ -712,3 +743,4 @@ Modified By:
 - Sean Huang (2021)
 - Daniel Grubb, Nayiri Krzysztofowicz, Zhaokai Liu (2021)
 - Dima Nikiforov (2022)
+- Roger Hsiao, Hansung Kim (2022)

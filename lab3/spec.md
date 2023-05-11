@@ -3,7 +3,7 @@
 Prof. Sophia Shao
 </p>
 <p align="center">
-TAs (ASIC): Dima Nikiforov
+TAs (ASIC): Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -32,9 +32,7 @@ so that every time
 you open a new terminal you have the paths for the tools setup properly.
 
 ```shell
-source /home/ff/eecs151/tutorials/eecs151.bashrc
-export HAMMER_HOME=/home/ff/eecs151/hammer
-source ${HAMMER_HOME}/sourceme.sh
+source /home/ff/eecs151/asic/eecs151.bashrc
 ```
 
 Type
@@ -62,11 +60,11 @@ configure the Hammer flow. Of these YAML files, you should only need to modify `
 design.
 
 
-Hammer is already setup at `/home/ff/eecs151/hammer` with all the required plugins for Cadence
+Hammer is already setup at `/home/ff/eecs151/asic/hammer` with all the required plugins for Cadence
 Synthesis (Genus) and Place-and-Route (Innovus), Synopsys Simulator (VCS), Mentor Graphics
 DRC and LVS (Calibre). You should not need to install it on your own home directory. **These
 Hammer plugins are under NDA. They are provided to us for educational purpose.
-They should never be copied outside of instructional machines under any circumstances or else we are at risk of unable to get access to the tools in the future!!!**
+They should never be copied outside of instructional machines under any circumstances or else we are at risk of losing access to these tools in the future!!!**
 
 Let us take a look at some parts of `design.yml` file:
 
@@ -343,8 +341,6 @@ only run the steps we want. Go through the following commands in the given order
 
 In this step, Hammer invokes Genus to read the technology libraries and the RTL Verilog files, as well as the constraints we
 provided in the `design.yml` file.
-Hammer will exit with an error, which is expected as Hammer looks for the final synthesis output
-files to gauge its success. We have not yet generated the gate-level Verilog, so we know Hammer will display an error after every step except the last one.
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step syn_generic"
 
@@ -433,10 +429,10 @@ divider instead of the GCD module when testing.
 
 ## Lab Deliverables
 
-### Lab Due: 11:59 PM, Friday February 18th, 2021
+### Lab Due: 11:59 PM, 1 week after your registered lab section.
 
-- Submit a written report with all 6 questions answered to Gradescope
-- Checkoff with an ASIC lab TA
+- **Submit** a written report in PDF with all 6 questions answered to Gradescope
+- **Checkoff** with an ASIC lab TA
 
 ## Acknowledgement
 

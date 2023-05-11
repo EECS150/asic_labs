@@ -3,7 +3,7 @@
 Prof. Sophia Shao
 </p>
 <p align="center">
-TAs (ASIC): Dima Nikiforov
+TAs (ASIC): Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -16,6 +16,8 @@ College of Engineering, University of California, Berkeley
 
 ## Final Project Deliverables
 
+<b>***The project report is due at 11:59 pm on Monday, Dec. 12. </b>
+
 By now you should have designed a fully-functional processor from scratch! Your design should pass all assembly tests at your reported maximum frequency. Your
 design should also pass all of the benchmark tests in at your reported maximum frequency, and you
 should report the cycle count for each of those tests. By the due date (Monday, May 9, 2022), each
@@ -27,7 +29,7 @@ graded you must submit the following items:
 * `build/par-rundir/timingReports/*`
 * `build/par-rundir/innovus.log*`
 
-These files will be used to check processor functionality and will show us your critical path, maximum operating frequency and area. During the interview session (Friday, May  6, 2022), the
+These files will be used to check processor functionality and will show us your critical path, maximum operating frequency and area. During the interview session (Friday, December 9, 2022), the
 professors and the GSI will be interviewing each team to gauge understanding of various concepts
 learned in the project, understand more about each team’s design process, and provide feedback. Your
 final report needs to answer the following questions:
@@ -60,9 +62,14 @@ have you done to try and optimize for these tests?
 11. Is there anything you would like to tell the staff before we grade your project?
 
 
-If you worked with a partner you do not need separate reports. If you are having issues with your
-partner please contact the GSI privately as soon as possible.
+### Division of Labor
 
+Each team member will **individually** submit a division of labor report to Gradescope.
+
+Explain specifically about how you divided up the work, and how much you
+perceive each member contributed to the different parts of the project. If
+there were any concerns on collaboration, feel free to express it in the
+individual report.
 
 
 ## Acknowledgement

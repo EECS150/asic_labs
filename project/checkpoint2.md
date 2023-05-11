@@ -3,7 +3,7 @@
 Prof. Sophia Shao
 </p>
 <p align="center">
-TAs (ASIC): Dima Nikiforov
+TAs (ASIC): Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -27,8 +27,9 @@ There are 2 CSR related instructions that you will need to implement:
 1. `csrw tohost,t2` (short for `csrrw x0,csr,rs1` where `csr = 0x51E`)
 2. `csrwi tohost,1` (short for `csrrwi x0,csr,zimm` where `csr = 0x51E`)
 
-`csrw` will write the value from register in rs1. `csrwi` will write the immediate (stored in rs1) to
-the addressed csr. Note that you do not need to write to rd (writing to x0 does nothing).
+`csrw` will write the value from register in rs1. `csrwi` will write the
+immediate (stored in the same bit field as rs1) to the addressed csr. Note that you
+do not need to write to rd (writing to x0 does nothing).
 
 <p align="center">
 <img src="./figs/csrw.png" width="800" />
@@ -91,7 +92,7 @@ vim addi.hex
 
 
 ### 6. Checkpoint 2 Deliverables
-*Checkoff due: Apr 15 (Friday), 2022*
+*Checkoff due: Nov 18 (Friday), 2022*
 
 Congratulations! You’ve started the design of your datapath by implementing your pipeline diagram, and written and thoroughly tested a key component in your processor and should now be well-versed in testing Verilog modules. Please answer the following questions to be checked off by a TA.
 
