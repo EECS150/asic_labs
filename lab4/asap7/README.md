@@ -1,9 +1,9 @@
 # EECS 151/251A ASIC Lab 4: Parallelization and Routing
 <p align="center">
-Prof. Sophia Shao
+Prof. Bora Nikolic
 </p>
 <p align="center">
-TAs (ASIC): Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan
+TA (ASIC): Ken Ho
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -221,4 +221,5 @@ Modified By:
 - Sean Huang (2021)
 - Daniel Grubb, Nayiri Krzysztofowicz, Zhaokai Liu (2021)
 - Dima Nikiforov (2022)
-- Roger Hsiao (2022)
+- Roger Hsiao, Hansung Kim (2022)
+- Chengyi Zhang (2023)
