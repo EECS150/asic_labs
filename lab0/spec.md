@@ -1,9 +1,9 @@
 # EECS 151/251A ASIC Lab 0: Getting Around the Compute Environment
 <p align="center">
-Prof. John Wawrzynek
+Prof. Bora Nikolic
 </p>
 <p align="center">
-TA (ASIC): Chengyi Lux Zhang
+TA (ASIC): Ken Ho
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -108,7 +108,7 @@ To begin, get the lab files by typing the following commands:
 ```shell
 cd /home/tmp/<your-eecs-username>
 git clone /home/ff/eecs151/labs/lab0
-cd lab1
+cd lab0
 ```
 
 ## Linux Basics
@@ -142,7 +142,7 @@ For 1-6 below, submit the command/keystrokes needed to generate the desired resu
 
 1. List the 5 most recently modified items in `/usr/bin`
 2. What directory is `git` installed in?
-3. Show the hidden files in your lab directory (the one you cloned from `/home/ff/eecs151/labs/lab1`
+3. Show the hidden files in your lab directory (the one you cloned from `/home/ff/eecs151/labs/lab0`
 4. What version of Vim is installed? Describe how you figured this out.
 5. (optional) Make a new directory called `backup` within `/home/tmp/<your-eecs-username>`. Copy all the files in this lab directory to the new `backup` directory and then delete all the copies in the new directory.
 6. Run `ping www.google.com`, suspend it, then kill the process. Then run it in the background, report its PID, then kill the process.

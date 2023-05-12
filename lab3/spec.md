@@ -1,4 +1,4 @@
-# EECS 151/251A ASIC Lab 3: Logic Synthesis
+# EECS 151/251A ASIC Lab 4: Floorplanning, Placement, Power, and CTS
 <p align="center">
 Prof. Sophia Shao
 </p>
@@ -12,426 +12,340 @@ Department of Electrical Engineering and Computer Science
 College of Engineering, University of California, Berkeley
 </p>
 
-
-
 ## Overview
-For this lab, you will learn how to translate RTL code into a gate-level netlist in a process called
-synthesis. In order to successfully synthesize your design, you will need to understand how to
-constrain your design, learn how the tools optimize logic and estimate timing, analyze the critical
-path of your design, and simulate the gate-level netlist.
-To begin this lab, get the project files by typing the following commands:
+This lab consists of three parts. For the first part, you will be writing a GCD coprocessor that could be included alongside a general-purpose CPU (like your final project). You will then learn how the tools can create a floorplan, route power straps, place standard cells, perform timing optimizations, and generate a clock tree for your design. Finally, you will get a slight head start on your project by writing part of the ALU.
 
-```shell
-git clone /home/ff/eecs151/labs/lab3.git
-cd lab3
-```
+This lab contains a series of conceptual questions labeled as *thought experiments.* These will not be graded and should not be included in your lab report. They are meant to deepen your understanding of the material, and serve as discussion points during your lab section.
 
-You should add the following lines to the `.bashrc` file in your home folder
-(for more information about what `.bashrc` does, see https://www.tldp.org/LDP/abs/html/sample-bashrc.html)
-so that every time
-you open a new terminal you have the paths for the tools setup properly.
+To begin this lab, get the project files and set up your environment by typing the following command and sourcing the `eecs151.bashrc` file, as usual:
 
 ```shell
 source /home/ff/eecs151/asic/eecs151.bashrc
 ```
 
-Type
+```shell
+git clone /home/ff/eecs151/labs/lab4.git
+cd lab4
+```
+
+You should also clean up the build directory generated from the previous labs to save some disk space.
+
+## Writing Your Coprocessor
+
+Take a look at the `gcd_coprocessor.v` file in the src folder. You will see the following empty Verilog module.
+
+```verilog
+module gcd_coprocessor #( parameter W = 32 )(
+  input clk,
+  input reset,
+  input operands_val,
+  input [W-1:0] operands_bits_A,
+  input [W-1:0] operands_bits_B,
+  output operands_rdy,
+  output result_val,
+  output [W-1:0] result_bits,
+  input result_rdy
+);
+
+// You should be able to build this with only structural verilog!
+// Define wires
+// Instantiate gcd_datapath
+// Instantiate gcd_control
+// Instantiate request FIFO
+// Instantiate response FIFO
+
+endmodule
+
+```
+First notice the parameter `W`. `W` is the data width of your coprocessor; the input data and output data will all be this bitwidth. Be sure to pass this parameter on to any submodules that may use it! You should implement a coprocessor that can handle 4 outstanding requests at a time. For now, you will use a FIFO (First-In, First-Out) block to store requests (operands) and responses (results).
+
+A FIFO is a sequential logic element which accepts (enqueues) valid data and outputs (dequeues) it in the same order when the next block is ready to accept. This is useful for buffering between the producer of data and its consumer. When the input data is valid (`enq_val`) and the FIFO is ready for data (`enq_rdy`), the input data is enqueued into the FIFO. There are similar signals for the output data. This interface is called a “decoupled” interface, and if implemented correctly it makes modular design easy (although sometimes with performance penalties).
+
+This FIFO is implemented with a 2-dimensional array of data called `buffer`. There are two pointers: a read pointer `rptr` and a write pointer `wptr`. When data is enqueued, the write pointer is incremented. When data is dequeued, the read pointer is incremented. Because the FIFO depth is a power of 2, we can leverage the fact that addition rolls over and the FIFO will continue to work. However, once the read and write pointers are the same, we don’t know if the FIFO is full or empty. We fix this by writing to the `full` register when they are the same and we just enqueued, and clearing the `full` register otherwise.
+
+A partially written FIFO has been provided for you in `fifo.v`. Using the information above, complete the FIFO implementation so that it behaves as expected.
+
+
+Then, finish the coprocessor implementation in `gcd_coprocessor.v`, so that the GCD unit and FIFOs are connected like in the following diagram. Note the connection between the `gcd_datapath` and `gcd_control` should be very similar to that in Lab 3’s `gcd.v` and that clock and reset are omitted from the diagram. You will need to think about how to manage a ready/valid decoupled interface with 2 FIFOs in parallel.
+
+
+<p align="center">
+<img src="./figs/gcd_coprocessor.png" width="600" />
+</p>
+
+A testbench has been provided for you (`gcd_coprocessor_testbench.v`). You can run the testbench to test your code by typing `make sim-rtl` in the root directory as before.
+
+---
+### Question 1: Design
+
+a) Submit your code (`gcd_coprocessor.v` and `fifo.v`) and show that your code works (VCS output is fine)
+
+---
+
+## Introducing Place and Route
+
+In this lab, you will begin to implement your GCD coprocessor in physical layout–the next step towards making it a real integrated circuit. Place & Route (P&R or PAR) itself is a much longer process than synthesis, so for this lab we will look at the first few steps: floorplanning, placement, power straps, and clock tree synthesis (CTS). The rest will be introduced in the next lab.
+
+### Setting up for P&R
+
+We will first bring our design to the point we stopped in Lab 3. Synthesize your design:
+
 
 ```shell
-which genus
+make syn
 ```
 
-to see if the shell prints out the path to the Cadence Genus Synthesis program (which we will be
-using for this lab). If it does not work, add the lines to your `.bash_profile` in your home folder
-as well. Try to open a new terminal to see if it works. The file `eecs151.bashrc` sets various
-environment variables in your system such as where to find the CAD programs or license servers.
+Before proceeding, make sure your design meets timing at the default 1ns clock period.
 
+### Floorplanning & Placement
+Floorplanning is the process of allocating area to the design and constraining how the area is utilized. Floorplanning is often the most important factor for determining a physical circuit’s performance, because intelligent floorplanning can assist the tool in minimizing the delays in the design, especially if the total area is highly constrained.
 
-## Synthesis Environment
-To perform synthesis, we will be using Cadence Genus. However, we will not be interfacing with
-Genus directly, we will rather use Hammer. Just like in lab 2, we have set up the basic Hammer
-flow for your lab exercises using Makefile.
+Floorplan constraints can be “hard” or “soft”. “Hard” constraints generally involve pre-placement of “macros”, which can be anything from memory elements (SRAM arrays, in an upcoming lab) to analog black boxes (like PLLs or LDOs). “Soft” constraints are generally guided placements of hierarchical modules in the design (e.g. the datapath, controller, and FIFOs in your coprocessor), towards certain regions of the floorplan. Generally, the P&R tool does a good job of placing hierarchical modules optimally, but sometimes, a little human assistance is necessary to eke out the last bit of performance.
 
-In this lab repository, you will see two sets of input files for Hammer. The first set of files are
-the source codes for our design that you will explore in the next section. The second set of files are
-some YAML files (`inst-env.yml`, `asap7.yml`, `design.yml`, `sim-rtl.yml`, `sim-gl-syn.yml`) that
-configure the Hammer flow. Of these YAML files, you should only need to modify `design.yml`,
-`sim-rtl.yml` and `sim-gl-syn.yml` in order to configure the synthesis and simulation for your
-design.
+In this lab, we will just look at allocating a custom sized area to our design, specified in the `design.yml` file. Open up this file and locate the following text block:
 
-
-Hammer is already setup at `/home/ff/eecs151/asic/hammer` with all the required plugins for Cadence
-Synthesis (Genus) and Place-and-Route (Innovus), Synopsys Simulator (VCS), Mentor Graphics
-DRC and LVS (Calibre). You should not need to install it on your own home directory. **These
-Hammer plugins are under NDA. They are provided to us for educational purpose.
-They should never be copied outside of instructional machines under any circumstances or else we are at risk of losing access to these tools in the future!!!**
-
-Let us take a look at some parts of `design.yml` file:
-
-```yaml
-gcd.clockPeriod: &CLK_PERIOD "1ns"
-```
-
-This option sets the target clock speed for our design. A more stringent target (a shorter clock
-period) will make the tool work harder and use higher-power gates to meet the 
-constraints. A more relaxed timing target allows the tool to focus on reducing area and/or power.
-In the sim-rtl.yml:
-
-```yaml
-defines:
-  - "CLOCK_PERIOD=1.00"
-```
-
-This option sets the clock period used during simulation. It is generally useful to separate the two as
-you might want to see how the circuit performs under different clock frequencies without changing
-the design constraints. Continuing from `design.yml`:
-
-```yaml
-gcd.verilogSrc: &VERILOG_SRC
-  - "src/gcd.v"
-  - "src/gcd_datapath.v"
-  - "src/gcd_control.v"
-```
-
-and in `sim-rtl.yml`:
-
-```yaml
-sim.inputs:
-  input_files:
-    - "src/gcd.v"
-    - "src/gcd_datapath.v"
-    - "src/gcd_control.v"
-    - "src/gcd_testbench.v"
-```
-
-These specify the files for synthesis and simulation. Moving on, we have:
-
-```yaml
-vlsi.inputs.clocks: [
-  {name: "clk", period: *CLK_PERIOD, uncertainty: "0.1ns"}
+```verilog
+# Placement Constraints
+vlsi.inputs.placement_constraints:
+  - path: "gcd_coprocessor"
+    type: "toplevel"
+    x: 0
+    y: 0
+    width: 150
+    height: 150
+    margins:
+      left: 10
+      right: 10
+      top: 10
+      bottom: 10
+  - path: "gcd_coprocessor/GCDdpath0"
+    type: "placement"
+    x: 50
+    y: 50
+    width: 50
+    height: 50
+# Pin Placement Constraints
+vlsi.inputs.pin_mode: generated
+vlsi.inputs.pin.generate_mode: semi_auto
+vlsi.inputs.pin.assignments: [
+  {pins: "*", layers: ["M5", "M7"], side: "bottom"}
 ]
 ```
 
-This is where we specify to Hammer that we intend on using the `CLK_PERIOD` we defined earlier
-as the constraint for our design. We will see more detailed constraints in later labs.
+The `vlsi.inputs.placement_constraints` block specifies 2 floorplan constraints. The first one denotes the origin `(x, y)`, size `(width, height)` and border margins of the top-level block `gcd_coprocessor`. The second one denotes a soft placement constraint on the GCD datapath to be roughly in the center of the floorplan. For complicated designs, floorplans of major modules are often defined separately, and then assembled together hierarchically.
 
-## Understanding the example design
-We have provided a circuit described in Verilog that computes the greatest common divisor (GCD)
-of two numbers. Unlike the FIR filter from the last lab, in which the testbench constantly provided
-stimuli, the GCD algorithm takes a variable number of cycles, so the testbench needs to know when
-the circuit is done to check the output. This is accomplished through a “ready/valid” handshake
-protocol. This protocol shows up in many places in digital circuit design.
-Look [here](https://inst.eecs.berkeley.edu/~eecs151/fa21/files/verilog/ready_valid_interface.pdf) at information on the course website for more background.
-The GCD top level is shown in the figure below.
+Pin constraints are also shown here. All that we need to see is that all pins are located at the bottom boundary of the design, on Metal 5 and Metal 7 layers. Pin placement becomes very important in a hierarchical design, if modules need to abut each other.
 
-<p align="center">
-<img src="./figs/block-diagram.png" width="600" />
-</p>
+Placement is the process of placing the synthesized design (structural connection of standard cells) onto the specified floorplan. While there is placement of minor cells (such as bulk connection cells, antenna-effect prevention cells, I/O buffers...) that take place separately and in between various stages of design, “placement” usually refers to the initial placement of the standard cells.
 
-The GCD module declaration is as follows:
+After the cells are placed, they are not “locked”–they can be moved around by the tool during subsequent optimization steps. However, initial placement tries its best to place the cells optimally, obeying the floorplan constraints and using complex heuristics to minimize the parasitic delay caused by the connecting wires between cells and timing skew between synchronous elements (e.g. flip-flops, memories). Poor placement (as well as poor aspect ratio of the floorplan) can result in congestion of wires later on in the design, which may prevent successful routing.
 
-```v
-module gcd#( parameter W = 16 )
-(
-  input clk, reset,
-  input [W-1:0] operands_bits_A,    // Operand A
-  input [W-1:0] operands_bits_B,    // Operand B
-  input operands_val,               // Are operands valid?
-  output operands_rdy,              // ready to take operands
+### Power
 
-  output [W-1:0] result_bits_data,  // GCD
-  output result_val,                // Is the result valid?
-  input result_rdy                  // ready to take the result
-);
+
+In the middle of the `asap7.yml` file, you will see this block, which contains parameters to HAMMER’s power strap auto-calculation API:
+
+```verilog
+# Power Straps
+par.power_straps_mode: generate
+par.generate_power_straps_method: by_tracks
+par.blockage_spacing: 2.0
+par.generate_power_straps_options:
+by_tracks:
+strap_layers:
+    - M3
+    - M4
+    - M5
+    - M6
+    - M7
+    - M8
+    - M9
+track_width: 14
+track_width_M3: 7
+track_width_M5: 24
+track_width_M8: 6
+track_width_M9: 6
+track_spacing: 0
+power_utilization: 0.25
+power_utilization_M8: 1.0
+power_utilization_M9: 1.0
 ```
 
-On the `operands` boundary, nothing will happen until GCD is ready to receive data (`operands_rdy`).
-When this happens, the testbench will place data on the operands (`operands_bits_A` and `operands_bits_B`),
-but GCD will not start until the testbench declares that these operands are valid (`operands_val`).
-Then GCD will start.
 
-The testbench needs to know that GCD is not done. This will be true as long as `result_val` is 0
-(the results are not valid). Also, even if GCD is finished, it will hold the result until the testbench is
-prepared to receive the data (`result_rdy`). The testbench will check the data when GCD declares
-the results are valid by setting `result_val` to 1.
+Power must be delivered to the cells from the topmost metal layers all the way down to the transistors, in a fashion that minimizes the overall resistance of the power wires without eating up all the resources that are needed for wiring the cells together. You will learn about power distribution briefly at the end of this course’s lectures, but the preferred method is to place interconnected grids of wide wires on every metal layer. There are tools to analyze the quality of the `power_distribution` network, which like the post-P&R simulations you did in Lab 2, calculate how the current being drawn by the circuit is transiently distributed across the power grid.
 
-The contract is that if the interface declares it is ready while the other side declares it is valid, the
-information must be transferred.
+You should not need to touch this block of yaml, because the parameters are tuned for meeting design rules in this technology. However, the important parameter is `power_utilization`, which specifies that approximately 25% of the available routing space on each metal layer should be reserved for power, with the exception of Metals 8 and 9, which should have 100% coverage.
 
-Open `src/gcd.v`. This is the top-level of GCD and just instantiates `gcd_control` and `gcd_datapath`.
-Separating files into control and datapath is generally a good idea. Open `src/gcd_datapath.v`.
-This file stores the operands, and contains the logic necessary to implement the algorithm (subtraction and comparison). Open `src/gcd_control.v`. This file contains a state machine that handles
-the ready-valid interface and controls the mux selects in the datapath. Open `src/gcd_testbench.v`.
-This file sends different operands to GCD, and checks to see if the correct GCD was found. Make
-sure you understand how this file works. Note that the inputs are changed on the negative edge
-of the clock. This will prevent hold time violations for gate-level simulation, because once a clock
-tree has been added, the input flops will register data at a time later than the testbench’s rising
-edge of the clock.
+### Clock Tree Synthesis (CTS): Overview
 
-Now simulate the design by running `make sim-rtl`. The waveform is located under `build/sim-rundir/`.
-Open the waveform in DVE (you may need to scroll down in DVE to find the testbench) and try
-to understand how the code works by comparing the waveforms with the Verilog code. It might
-help to sketch out a state machine diagram and draw the datapath.
+Clock Tree Synthesis (CTS) is arguably the next most important step in P&R behind floorplanning. Recall that up until this point, we have not talked about the clock that triggers all the sequential logic in our design. This is because the clock signal is assumed to arrive at every sequential element in our design at the same time. The synthesis tool makes this assumption and so does the initial cell placement algorithm. In reality, the sequential elements have to be placed wherever makes the most sense (e.g. to minimize delays between them). As a result, there is a different amount of delay to every element from the top-level clock pin that must be “balanced” to maintain the timing results from synthesis. We shall now explore the steps the P&R tool takes to solve this problem and why it is called Clock Tree Synthesis.
 
----
-### Question 1: Understanding the algorithm
+### Pre-CTS Optimization
 
-By reading the provided Verilog code and/or viewing the RTL level simulations, demonstrate that
-you understand the provided code:
+Pre-CTS optimization is the first round of Static Timing Analysis (STA) and optimization performed on the design. It has a large freedom to move the cells around to optimize your design to meet setup checks, and is performed after the initial cell placement. Hold errors are not checked during pre-CTS optimization. Because we do not have a clock tree in place yet, we do not know when the clocks will arrive to each sequential element, hence we don’t know if there are hold violations. The tool therefore assumes that every sequential element receives the clock ideally at the same time, and tries to balance out the delays in data paths to ensure no setup violations occur. In the end, it generates a timing report, very similar to the ones we saw in the last lab.
 
-**a.) Draw a table with 5 columns (cycle number, value of `A_reg`, value of `B_reg`, `A_next`, `B_next`) and fill in all of the rows for the first test vector (GCD of 27 and 15)**
+### Clock Tree Clustering and Balancing
+Most of CTS is accomplished after initial optimization. The CTS algorithm first clusters groups of sequential elements together, mostly based on their position in the design relative to the top-level clock pin and common clock gating logic. The numbers of elements in each cluster is selected so that it does not present too large of a load to a driving cell. These clusters of sequential elements are the “leaves” of the clock tree attached to branches.
 
-**b) In `src/gcd_testbench.v`, the inputs are changed on the negative edge of the clock to prevent hold time violations. Is the output checked on the positive edge of the clock or the negative edge of the clock? Why?**
+Next, the CTS algorithm tries to ensure that the delay from the top-level clock pin to the leaves are all the same. It accomplishes this by adding and sizing clock buffers between the top-level pin and the leaves. There may be multiple stages of clock buffering, depending on how physically large the design is. Each clock buffer that drives multiple loads is a branching point in the clock tree, and strings of clock buffers in a row are essentially the “trunks”. Finally, the top-level clock pin is considered the “root” of the clock tree.
 
-**c) In `src/gcd_testbench.v`, what will happen if you change `result_rdy = 1;` to `result_rdy = 0;`? What state will the `gcd_control.v` state machine be in?**
+The CTS algorithm may go through many iterations of clustering and balancing. It will try to minimize the depth of the tree (called *insertion delay*, i.e. the delay from the root to the leaves) while simultaneously minimizing the *skew* (difference in insertion delay) between each leaf in the tree. The deeper the tree, the harder it is to meet both setup and hold timing (*thought experiment #1*: why is this?).
 
----
-### Question 2: Testbenches
-**a) Modify `src/gcd_testbench.v` so that intermediate steps are displayed in the format below.**
-**Include a copy of the code you wrote in your writeup (this should be approximately 3-4 lines).**
+### Post-CTS Optimization
+Post-CTS optimization is then performed, where the clock is now a real signal that is being distributed unequally to different parts of the design. In this step, the tool fixes setup and hold time violations simultaneously. Often times, fixing one error may introduce one or multiple errors (*thought experiment #2*: why is this?), so this process is iterative until it reaches convergence (which may or may not meet your timing constraints!). Fixing these violations involve resizing, adding/deleting, and even moving the logic and clock cells.
+
+After this stage of optimization, the clock tree and clock routing are fixed. In the next lab, you will finish the P&R flow, which finalizes the rest of the routing, but it is usually the case that if your design is unable to meet timing after CTS, there’s no point continuing!
+
+## Compiling the Design with HAMMER
+
+Now that we went over the flow (at least at a high level), it is time to actually perform these steps. Type the following commands to perform the above described operations:
 
 ```shell
- 0: [ ...... ] Test ( x ), [ x == x ]  (decimal)
- 1: [ ...... ] Test ( x ), [ x == 0 ]  (decimal)
- 2: [ ...... ] Test ( x ), [ x == 0 ]  (decimal)
- 3: [ ...... ] Test ( x ), [ x == 0 ]  (decimal)
- 4: [ ...... ] Test ( x ), [ x == 0 ]  (decimal)
- 5: [ ...... ] Test ( x ), [ x == 0 ]  (decimal)
- 6: [ ...... ] Test ( 0 ), [ 3 == 0 ]  (decimal)
- 7: [ ...... ] Test ( 0 ), [ 3 == 0 ]  (decimal)
- 8: [ ...... ] Test ( 0 ), [ 3 == 27 ] (decimal)
- 9: [ ...... ] Test ( 0 ), [ 3 == 12 ] (decimal)
-10: [ ...... ] Test ( 0 ), [ 3 == 15 ] (decimal)
-11: [ ...... ] Test ( 0 ), [ 3 == 3 ]  (decimal)
-12: [ ...... ] Test ( 0 ), [ 3 == 12 ] (decimal)
-13: [ ...... ] Test ( 0 ), [ 3 == 9 ]  (decimal)
-14: [ ...... ] Test ( 0 ), [ 3 == 6 ]  (decimal)
-15: [ ...... ] Test ( 0 ), [ 3 == 3 ]  (decimal)
-16: [ ...... ] Test ( 0 ), [ 3 == 0 ]  (decimal)
-17: [ ...... ] Test ( 0 ), [ 3 == 3 ]  (decimal)
-18: [ passed ] Test ( 0 ), [ 3 == 3 ]  (decimal)
-19: [ ...... ] Test ( 1 ), [ 7 == 3 ]  (decimal)
+make syn-to-par
+make redo-par HAMMER_EXTRA_ARGS="--stop_after_step clock_tree"
 ```
 
----
-## Synthesis
-Synthesis is the process of converting your Verilog RTL description into technology (or platform, in the case of
-FPGAs) specific gate-level Verilog. These gates are different from the “and”, “or”, “xor” etc. primitives in Verilog. While the logic primitives correspond to gate-level operations, they do not have
-a physical representation outside of their symbol. A synthesized gate-level Verilog netlist only contains
-cells with corresponding physical aspects: they have a transistor-level schematic with transistor
-sizes provided, a physical layout containing information necessary for fabrication, timing libraries
-providing performance specifications, etc. Some synthesis tools also output assign statements that
-refer to pass-through interfaces, but no logic operation is performed in these assignments (not even
-simple inversion!).
 
+The first command here translates the outputs of the synthesis tool to conform to the inputs expected by the P&R tool. The second command is similar to the partial synthesis commands we used in the last lab. It tells HAMMER to do the PAR flow until it finishes CTS, then stop. Under the hood, for this lab, HAMMER uses Cadence Innovus as the back-end tool to perform P&R. HAMMER waits until Innovus is done with the P&R steps through post-CTS optimization, then exits. You will see that HAMMER again gives you an error - similar to last lab when HAMMER expected a synthesized output, this time HAMMER expects the full flow to be completed and gives an error whenever it can’t find some collateral expected of P&R.
 
-Open the Makefile to see the available targets that you can run. You don’t have to know all of
-these for now. The Makefile provides shorthands to various Hammer commands for synthesis,
-placement-and-routing, or simulation. Read [Hammer-Flow](https://hammer-vlsi.readthedocs.io/en/latest/Hammer-Flow/index.html) if you want to get more detail.
+Once done, look into the `build/par-rundir` folder. Similar to how all the synthesis files were placed under `build/syn-rundir` folder in the previous lab, this folder holds all the P&R files. Go ahead and open `par.tcl` file in a text editor. HAMMER generated this file for Innovus to consume in batch mode, and inside are Innovus Common UI commands as a TCL script.
 
-The first step is to have Hammer generate the necessary supplement Makefile (`build/hammer.d`). To do so, type the
-following command in the lab directory:
+While we will be looking through some of these commands in a bit, first take a look at `timingReports`. You should only see the pre-CTS timing reports. `gcd_coprocessor_preCTS_all.tarpt.gz` contains the report in a g-zipped archive. The remaining files also contain useful information regarding capacitances, length of wires etc. You may view these directly using Vim, unzip them using `gzip`, or navigate through them with Caja, the file browser.
 
-    make buildfile
+Going back a level, in `par-rundir`, the folder `hammer_cts_debug` has the post-CTS timing reports. The two important archives are `hammer_cts_all.tarpt.gz` and `hammer_cts_all_hold.tarpt.gz`. These contain the setup and hold timing analyses results after post-CTS optimization. Look into the hold report (you may actually see some violations!). However, any violation should be small (<1 ps) and because we have a lot of margins during design (namely the `design.yml` file has “clock uncertainty” set to 100 ps), these small violations are not of concern, but should still be investigated in a real design.
 
-This generates a file with make targets specific to the constraints we have provided inside the YAML
-files. If you have not run `make clean` after simulating, this file should already be generated. `make buildfile` also copies and extracts a tarball of the ASAP7 PDK to your local workspace. It will
-take a while to finish if you run this command first time. The extracted PDK is not deleted when
-you do `make clean` to avoid unnecessarily rebuilding the PDK. To explicitly remove it, you need to
-remove the build folder (and you should do it once you finish the lab to save your allocated disk
-space since the PDK is huge). To synthesize the GCD, use the following command:
+## Visualizing the Results
 
-    make syn
+From the `build/par-rundir` folder, execute the following in a terminal with graphics (X2Go highly recommended for low latency):
 
-This runs through all the steps of synthesis. 
-By default, Hammer puts the generated objects under the directory build. Go to `build/syn-rundir/reports`. 
-There are five text files here that contain very useful information about
-the synthesized design that we just generated. Go through these files and familiarize yourself with
-these reports. One report of particular note is `final_time_PVT_0P63V_100C.setup.view.rpt`. The
-name of this file represents that it is a timing report, with the Process Voltage Temperature corner
-of 0.63 V and 100 degrees C, and that it contains the setup timing checks. Another important file
-is `build/syn-rundir/gcd.mapped.v`. This is your synthesized gate-level Verilog. Go through it
-to see what the RTL design has become to represent it in terms of technology-specific gates. Try
-to follow an input through these gates to see the path it takes until the output.
-These files are useful for debugging and evaluating your design.
-
-Now open the `final_time_PVT_0P63V_100C.setup.view.rpt` file and look at the first block of text
-you see. It should look similar to this:
-
-```text
-Path 1: MET (474 ps) Setup Check with Pin GCDdpath0/A_reg_reg[15]/CLK->D
-View: PVT_0P63V_100C.setup_view
-Group: clk
-Startpoint: (R) GCDdpath0/B_reg_reg[5]/CLK
-Clock: (R) clk
-Endpoint: (F) GCDdpath0/A_reg_reg[15]/D
-Clock: (R) clk
-Capture Launch
-Clock Edge:+ 1000 0
-Src Latency:+ 0 0
-Net Latency:+ 0 (I) 0 (I)
-Arrival:= 1000 0
-Setup:- 25
-Uncertainty:- 0
-Required Time:= 975
-Launch Clock:- 0
-Data Path:- 501
-Slack:= 474
-#---------------------------------------------------------------------------------------------------------------------
-# Timing Point Flags Arc Edge Cell Fanout Load Trans Delay Arrival Instance
-# (fF) (ps) (ps) (ps) Location
-#---------------------------------------------------------------------------------------------------------------------
-GCDdpath0/B_reg_reg[5]/CLK - - R (arrival) 16 - 0 - 0 (-,-)
-GCDdpath0/B_reg_reg[5]/QN - CLK->QN R ASYNC_DFFHx1_ASAP7_75t_SL 5 3.3 42 48 48 (-,-)
-GCDdpath0/g1181/Y - A->Y F INVx1_ASAP7_75t_SL 2 1.2 20 10 58 (-,-)
-GCDdpath0/g1162__8246/Y - A->Y F OR2x2_ASAP7_75t_SL 2 1.3 12 17 76 (-,-)
-GCDdpath0/g1152__6260/Y - A1->Y F AO32x1_ASAP7_75t_SL 1 0.7 13 19 95 (-,-)
-GCDdpath0/g1144__2883/Y - C1->Y R AOI322xp5_ASAP7_75t_SL 1 0.7 47 19 114 (-,-)
-GCDdpath0/g1138__5115/Y - B2->Y F AOI221xp5_ASAP7_75t_SL 1 0.7 37 14 128 (-,-)
-GCDdpath0/g1137__1881/Y - A2->Y R O2A1O1Ixp33_ASAP7_75t_SL 3 2.2 72 36 164 (-,-)
-GCDctrl0/g446__5526/Y - B->Y F NAND2xp5_ASAP7_75t_SL 2 1.3 36 17 182 (-,-)
-GCDctrl0/g444/Y - A->Y R INVx1_ASAP7_75t_SL 18 10.0 102 52 234 (-,-)
-GCDdpath0/g1265/Y - A->Y F INVx1_ASAP7_75t_L 17 9.4 91 63 297 (-,-)
-GCDdpath0/g1232__9945/Y - B->Y R NOR2xp33_ASAP7_75t_L 16 9.0 304 154 451 (-,-)
-GCDdpath0/g1193__6417/Y - C1->Y F AOI222xp33_ASAP7_75t_SL 1 0.7 124 51 501 (-,-)
-GCDdpath0/A_reg_reg[15]/D - - F ASYNC_DFFHx1_ASAP7_75t_SL 1 - - 0 501 (-,-)
-#---------------------------------------------------------------------------------------------------------------------
+```shell
+./generated-scripts/open_chip
 ```
+The Innovus GUI will pop up with your layout and your terminal is now the Innovus shell. After the window opens, click anywhere inside the black window at the center of the GUI and press “F” to zoom-to-fit. You should see your entire design, which should look roughly similar to the one below once you disable the V8, M8, V9, and M9 layers (because recall that the power straps in these metal layers were set to 100% coverage) using the right panel by unchecking their respective boxes under the “V” column:
 
-This is one of the most common ways to assess the critical paths in your circuit. 
-The setup timing report lists each timing path's **slack**, which is the extra delay the signal can have before a setup
-violation occurs, in ascending order. The first block indicates the critical path of the design.
-Each row represents a timing path from a gate to the next, and the whole block is the **timing
-arc** between two flip-flops (or in some cases between latches). The `MET` at the top of the block
-indicates that the timing requirements have been met and there is no violation. If there was, this
-indicator would have read `VIOLATED`. Since our critical path meets the timing requirements with
-a 474 ps of slack, this means we can run this synthesized design with a period equal to clock period
-(1000 ps) minus the critical path slack (474 ps), which is 526 ps.
+### Checkoff 1: Innovus 
 
----
+Demonstrate that you are able to view your design when using Innovus.
 
-### Question 3: Reporting Questions
-**a) Which report would you look at to find the total number of each different standard cell that the design contains?**
+<p align="center">
+<img src="./figs/innovus_window.png" width="500" />
+</p>
 
-**b) Which report contains area breakdown by modules in the design?**
 
-**c) What is the cell used for `A_reg_reg[7]`? How much leakage power does `A_reg_reg[7]` contribute? How did you find this?**
+Take a moment to familiarize yourself with the Innovus GUI. You should also toggle between the floorplan, amoeba, and placement views using the buttons that look like this: <img src="./figs/view_icons.png" width="40" />  and examine how the actual placement of the GCD datapath in ameoba view doesn’t follow our soft placement guidance in floorplan view. This is because our soft placement guidance clearly places the datapath farther away from the pins and would result in a worse clock tree!
 
----
+Now, let’s take a look at the clock tree a couple different ways. In the right panel, under the “Net” category, hide from view all the types of nets except “Clock”. Your design should now look approximately like this, which shows the clock tree routing:
 
-### Question 4: Synthesis Questions
-**a) Looking at the total number of instances of sequential cells synthesized and the number of `reg` definitions in the Verilog files, are they consistent? If not, why?**
+<p align="center">
+<img src="./figs/clock_tree_nets.png" width="500" />
+</p>
 
-**b) Modify the clock period in the `design.yml` file to make the design go faster. What is the highest clock frequency this design can operate at in this technology?**
 
----
+We can also see the clock tree in its “tree” form by going to the menu Clock → CCOpt Clock Tree Debugger and pressing OK in the popup dialog. A window should pop up looking approximately like this:
 
-### Synthesis: Step-by-step
+<p align="center">
+<img src="./figs/clock_tree_debugger.png" width="500" />
+</p>
 
-Typically, we will be roughly following the above section’s flow, but it is also
-useful to know what is going on underneath. In this section,
-we will look at the steps Hammer takes to get from RTL Verilog to all the outputs we saw in the
-last section.
 
-First, type `make clean` to clean the environment of previous build’s files. Then, use `make buildfile`
-to generate the supplementary Makefile as before. Now, we will modify the `make syn` command to
-only run the steps we want. Go through the following commands in the given order:
+The red dots are the “leaves”, the green triangles are the clock buffers, the blue dots are clock gates (they are used to save power), and the green pin on top is the clock pin or the clock “root”. The numbers on the left side denote the insertion delay in ps.
 
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step init_environment"
+Now, let’s visualize our critical path. Go to the menu Timing → Debug Timing and press OK in the popup dialog. A window will pop up that looks approximately like this:
 
-In this step, Hammer invokes Genus to read the technology libraries and the RTL Verilog files, as well as the constraints we
-provided in the `design.yml` file.
+<p align="center">
+<img src="./figs/timing_debug.png" width="500" />
+</p>
 
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step syn_generic"
+Examine the histogram. This shows the number of paths for every amount of slack (on the x-axis), and you always want to see a green histogram! The shape of the histogram is a good indicator of how good your design is and how hard the tool is working to meet your timing constraints (*thought experiment #3:* how so, and what would be the the ideal histogram shape?).
 
-This step is the **generic synthesis** step. In this step, Genus converts our RTL read
-in the previous step into an intermediate format, made up of technology-independent generic gates. These
-gates are purely for gate-level functional representation of the RTL we have coded, and are going
-to be used as an input to the next step. This step also performs logical optimizations on our design
-to eliminate any redundant/unused operations.
+Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the hammer cts debug folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this:
 
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step syn_map"
-
-This step is the **mapping** step. Genus takes its own generic gate-level output and converts it to
-our ASAP7-specific gates. This step further optimizes the design given the gates in our technology.
-That being said, this step can also increase the number of gates from the previous step as not
-all gates in the generic gate-level Verilog may be available for our use and they may need to be
-constructed using several, simpler gates.
-
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step add_tieoffs"
-
-In some designs, the pins in certain cells are hardwired to 0 or 1, which requires a tie-off cell.
-
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step write_regs"
-
-This step is purely for the benefit of the designer. For some designs, we may need to have a list
-of all the registers in our design. In this lab, the list of regs is used in post-synthesis simulation to
-generate the `force_regs.ucli`, which sets initial states of registers.
-
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step generate_reports"
-
-The reports we have seen in the previous section are generated during this step.
-
-    make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step write_outputs"
-
-This step writes the outputs of the synthesis flow. This includes the gate-level `.v` file we looked at
-earlier in the lab. Other outputs include the design constraints (such as clock frequencies, output
-loads etc., in `.sdc` format) and delays between cells (in `.sdf` format).
-
-## Post-Synthesis Simulation
-From the root folder, type the following commands:
-
-    make sim-gl-syn
-    
-This will run a post-synthesis simulation using annotated delays from the `gcd.mapped.sdf` file.
+<p align="center">
+<img src="./figs/critical_path_highlight.png" width="500" />
+</p>
 
 ---
 
-### Checkoff 1: Synthesis Understanding 
-Demonstrate that your synthesis flow works correctly, and be prepared to explain the synthesis steps at a high level.
+### Question 2: Interpreting P&R Timing Reports
+a) What is the critical path of your design pre- and post-CTS? Is it the same as the post-synthesis critical path?
+
+b) Look in the post-CTS text timing report (`hammer_cts_debug/hammer_cts.all.tarpt`). Find a path inside which the same type of cell is used more than once. Identify the delay of those instances of that common cell. Can you explain why they are different?
+
+c) What is the skew between the clock that arrives at the flip-flops at the beginning and end of the post-CTS critical path? Does this skew help or hurt the timing margin calculation?
+
+d) (UNGRADED thought experiment #1) Why is it harder to meet both setup and hold timing constraints if the clock tree has large insertion delay?
+
+e) (UNGRADED thought experiment #2) Why does fixing one setup or hold error introduce one or multiple errors? Is it more likely to produce an error of the same, or different type, and why?
+
+f) (UNGRADED thought experiment #3) P&R tools have a goal to minimize power while ensuring that all paths have have >0ps of slack. What might a timing path histogram look like in a design that has maximized the frequency it can run at while meeting this goal? Given the histogram obtained here, does it look we can increase our performance? What might we need to improve/change?
 
 ---
 
-### Question 5: Delay Questions
-Check the waveforms in DVE. 
+When you are done, you may exit Innovus by closing the GUI window.
+## Under the Hood: Innovus
+While HAMMER obfuscates a lot from the end-user in terms of tool-based commands, most IC companies directly interface with Innovus and it is useful to know what tool-specific commands you are running in case you need to debug your circuit step-by-step. Therefore, we will now look into par.tcl and follow along using Innovus. Make sure you are in the directory `build/par-rundir` and type:
 
-**a) Report the clk-q delay of `state[0]` in `GCDctrl0` at 17.5 ns and submit a screenshot of the waveforms showing how you found this delay.**
+```shell
+innovus -common_ui
+```
+Now, follow `par.tcl` command-by-command, copying and pasting the commands to the Innovus shell and looking at the GUI for any changes. You may skip the `puts` commands as they just tell the tool to print out what its doing, and the `write_db` commands which write a checkpoint database between each step of the P&R flow. The steps that you will see significant changes are listed below. As you progress through the steps, feel free to zoom in to investigate what is going on with the design, look at the extra TCL files that are sourced, and cross-reference the commands with the command reference manual at `/home/ff/eecs151/labs/manuals/TCRcom.pdf`.
 
-**b) Which line in the sdf file specifies this delay and what is the delay?**
+1. After the command sourcing `floorplan.tcl`
+2. After the command sourcing `power_straps.tcl`
+3. After the command `edit pin`
+4. After the command `place_opt_design`
 
-**c) Is the delay from the waveform the same as from the sdf file? Why or why not?**
-
----
-
-## Build Your Divider
-In this section, you will build a parameterized divider of unsigned integers. Some initial code has
-been provided to help you get started. To keep the control logic simple, the divider module uses an input
-signal `start` to begin the computation at the next clock cycle, and asserts an output signal `done` to
-HIGH when the division result is valid. The input `dividend` and `divisor` should be registered
-when `start` is HIGH. You are not required to handle corner cases such as dividing by 0. You are
-free to modify the skeleton code to implement a ready/valid interface instead, but it is not required.
-
-It is suggested that you implement the divide algorithm described [here](http://bwrcs.eecs.berkeley.edu/Classes/icdesign/ee141_s04/Project/Divider%20Background.pdf). Use the **Divide Algorithm Version 2** (slide 9).
-A simple testbench skeleton is also provided to you. You should change it to add more test vectors,
-or test your divider with different bitwidths. You need to change the file `sim-rtl.yml` to use your
-divider instead of the GCD module when testing.
+After the `ccopt_design` command is run, you may see a bunch of white X markers on your design. These are some Design Rule Violations (DRVs), indicating Innovus didn’t quite comply with the technology’s requirements. Ignore these for the purposes of this lab.
 
 ---
 
-### Question 6: Synthesize your divider
-**a) Push your 4-bit divider design through the synthesis tool, and determine its critical path, cell area, and maximum operating frequency from the reports. You might need to re-run synthesis multiple times to determine the maximum achievable frequency.**
+### Question 3: Understanding P&R Steps
 
-**b) Change the bitwidth of your divider to 32-bit, what is the critical path, area, and maximum operating frequency now?**
+a) Submit a snapshot of your design for each of the four steps described above (use whichever Innovus view you deem is most appropriate to show the changes of each step). Make sure the V8 M8 V9 M9 layers are not visible, and your design is zoomed-to-fit. Describe how the design layout changes for each major step in their respective figure captions.
 
-**c) Submit your divider code and testbench to the report. Add comments to explain your testbench and why it provides sufficient coverage for your divider module.**
+b) Examine the power straps on M1, in relation to the cells. You will need to zoom in far enough to see the net label on the straps. What does their pattern tell you about how digital standard cells are constructed?
+
+c) Take a note of the orientations of power straps and routing metals. If you were to place pins on the right side of this block instead of the bottom, what metal layers could they be on?
 
 ---
+
+Now zoom in to one of the cells and click the box next to “Cell” on the right panel of the GUI. This will show you the internal routing of the standard cells. While by default we have this off, it may prove useful when investigating DRVs in a design. You can now exit the application by closing the GUI window.
+
+## Project Preparation
+---
+### Question 4: ALU
+In this question, you will be designing and testing an ALU for later use in the semester. A header file containing define statements for operations (`ALUop.vh`) is provided inside the `src` directory of this lab. This file has already been included in an ALU template given to you in the same folder (`ALU.v`), but you may need to modify the include statement to match the correct path of the header file. Compare `ALUop` input of your ALU to the define statements inside the header file to select the function ALU is currently running. For `ADD` and `SUB`, treat the operands as unsigned integers and ignore overflow in the result. Definition of the functions is given below:
+  
+| Op Code |                         Definition                        |
+|:-------:|:---------------------------------------------------------:|
+|   ADD   |                         Add A and B                       |
+|   SUB   |                      Subtract B from A                    |
+|   AND   |                    Bitwise `and` A and B                  |
+|    OR   |                     Bitwise `or` A and B                  |
+|   XOR   |                    Bitwise `xor` A and B                  |
+|   SLT   |        Perform a signed comparison, Out=1 if  A < B       |
+|   SLTU  |      Perform an unsigned comparison, Out = 1 if A < B     |
+|   SLL   |   Logical shift left A by an amount indicated by B[4:0]   |
+|   SRA   | Arithmetic shift right A by an amount indicated by B[4:0] |
+|   SRL   |   Logical shift right A by an amount indicated by B[4:0]  |
+|  COPY_B |                    Output is equal to B                   |
+|   XXX   |                        Output is 0                        |
+
+Given these definitions, complete `ALU.v` and write a testbench tb `ALU.v` that checks all these operations with random inputs at least a 100 times per operation and outputs a PASS/FAIL indicator. For this lab, we will only check for effort and not correctness, but you will need it to work later!
+
+For this question, submit the code for both your ALU module as well as for the testbench.
+
+---
+
+### Checkoff 2: ALU
+
+Demonstrate the functionality of your ALU and testbench.
 
 ## Lab Deliverables
 
-### Lab Due: 11:59 PM, 1 week after your registered lab section.
+### Lab Due: 11:59 PM, 2 weeks after your registered lab section.
 
-- **Submit** a written report in PDF with all 6 questions answered to Gradescope
+- **Submit** a written report in PDF with all 4 questions answered to Gradescope
 - **Checkoff** with an ASIC lab TA
 
 ## Acknowledgement
