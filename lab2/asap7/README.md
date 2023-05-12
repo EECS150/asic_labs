@@ -1,9 +1,9 @@
-# EECS 151/251A ASIC Lab 3: Logic Synthesis
+# EECS 151/251A ASIC Lab 2: Logic Synthesis
 <p align="center">
-Prof. Sophia Shao
+Prof. Bora Nikolic
 </p>
 <p align="center">
-TAs (ASIC): Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan
+TA (ASIC): Ken Ho
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -22,8 +22,8 @@ path of your design, and simulate the gate-level netlist.
 To begin this lab, get the project files by typing the following commands:
 
 ```shell
-git clone /home/ff/eecs151/labs/lab3.git
-cd lab3
+git clone /home/ff/eecs151/labs/lab2.git
+cd lab2
 ```
 
 You should add the following lines to the `.bashrc` file in your home folder
@@ -450,3 +450,5 @@ Modified By:
 - Sean Huang (2021)
 - Daniel Grubb, Nayiri Krzysztofowicz, Zhaokai Liu (2021)
 - Dima Nikiforov (2022)
+- Roger Hsiao, Hansung Kim (2022)
+- Chengyi Zhang (2023)
