@@ -1,4 +1,4 @@
-# EECS 151/251A ASIC Lab 5: Parallelization and Routing
+# EECS 151/251A ASIC Lab 4: Parallelization and Routing
 <p align="center">
 Prof. Sophia Shao
 </p>
@@ -25,8 +25,8 @@ source /home/ff/eecs151/asic/eecs151.bashrc
 ```
 
 ```shell
-git clone /home/ff/eecs151/labs/lab5.git
-cd lab5
+git clone /home/ff/eecs151/labs/lab4.git
+cd lab4
 ```
 
 ## Design
