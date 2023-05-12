@@ -1,0 +1,140 @@
+*----------------------------------------------------------------------------------------
+*	Voltus Power Analysis - Power Calculator - Version v18.10-p005_1 64-bit (05/20/2018 23:33:44)
+*	Copyright 2007, Cadence Design Systems, Inc.
+*
+* 	Date & Time:	2022-Jan-27 20:23:30 (2022-Jan-28 04:23:30 GMT)
+*
+*----------------------------------------------------------------------------------------
+*
+*	Design: fir
+*
+*	Liberty Libraries used: 
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SIMPLE_RVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SIMPLE_LVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SIMPLE_SLVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SIMPLE_SRAM_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_AO_RVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_AO_LVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_AO_SLVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_AO_SRAM_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_OA_RVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_OA_LVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_OA_SLVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_OA_SRAM_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SEQ_RVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SEQ_LVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SEQ_SLVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_SEQ_SRAM_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_INVBUF_RVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_INVBUF_LVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_INVBUF_SLVT_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/asap7sc7p5t_24_INVBUF_SRAM_FF.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW1024x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW128x46_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW128x48_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW128x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW256x128_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW256x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW256x46_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW256x48_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW256x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW32x50_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW512x128_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW512x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW512x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW64x128_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW64x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW64x34_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM1RW64x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW128x16_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW128x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW128x4_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW128x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW16x16_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW16x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW16x4_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW16x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW32x16_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW32x22_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW32x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW32x39_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW32x4_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW32x8_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW64x16_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW64x32_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW64x4_PVT_0P77V_0C.lib
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir_FINAL/libs/mmmc/SRAM2RW64x8_PVT_0P77V_0C.lib
+*
+*	Power Domain used: 
+*              Rail:        VDD      Voltage:       0.77 
+*
+*	Parasitic Files used: 
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir.hold.par.spef
+*	        /tools/B/vnikiforov/lab2/src/post-par-sim/fir.setup.par.spef
+*
+*	DEF Files used: 
+*	        /tmp/ssv_tmpdir_437871_MLeXEl/eps_out_437871.def.gz
+*
+*       Activity File: N.A.
+*
+*       Hierarchical Global Activity: N.A.
+*
+*       Global Activity: N.A.
+*
+*       Sequential Element Activity: 0.200000
+*
+*       Primary Input Activity: 0.200000
+*
+*       Default icg ratio: N.A.
+*
+*       Global Comb ClockGate Ratio: N.A.
+*
+*	Power Units = 1mW
+*
+*	Time Units = 1e-09 secs 
+*
+*       report_power -output activePowerReports -report_prefix PVT_0P77V_0C.hold_view
+*
+-----------------------------------------------------------------------------------------
+
+
+Total Power 
+-----------------------------------------------------------------------------------------
+Total Internal Power:        0.12322484 	    4.5143%
+Total Switching Power:       2.60425266 	   95.4061%
+Total Leakage Power:         0.00217392 	    0.0796%
+Total Power:                 2.72965144 
+-----------------------------------------------------------------------------------------
+
+
+Group                           Internal   Switching     Leakage       Total  Percentage 
+                                Power      Power         Power         Power  (%)        
+-----------------------------------------------------------------------------------------
+Sequential                       0.04217    0.002347   0.0005622     0.04508       1.651 
+Macro                                  0           0           0           0           0 
+IO                                     0           0           0           0           0 
+Combinational                    0.08106       2.602    0.001612       2.685       98.35 
+Clock (Combinational)                  0           0           0           0           0 
+Clock (Sequential)                     0           0           0           0           0 
+-----------------------------------------------------------------------------------------
+Total                             0.1232       2.604    0.002174        2.73         100 
+-----------------------------------------------------------------------------------------
+
+
+Rail                  Voltage   Internal   Switching     Leakage       Total  Percentage 
+                                Power      Power         Power         Power  (%)        
+-----------------------------------------------------------------------------------------
+VDD                      0.77     0.1232       2.604    0.002174        2.73         100 
+
+
+-----------------------------------------------------------------------------------------
+*	Power Distribution Summary: 
+*                Highest Average Power:             FE_OFC9_Out_7 (BUFx24_ASAP7_75t_SL):           0.2336 
+*                Highest Leakage Power:            FE_OFC16_Out_0 (BUFx24_ASAP7_75t_SL):         9.35e-05 
+*          Total Cap:      1.62396e-11 F
+*          Total instances in design:   172
+*          Total instances in design with no power:     0
+*          Total instances in design with no activity:     0
+*          Total Fillers and Decap:     0
+-----------------------------------------------------------------------------------------
+

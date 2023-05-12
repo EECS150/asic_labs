@@ -1,0 +1,4 @@
+#Mapping of always-on and equivalent switch rails:
+
+VDD  0.77V
+VSS  0V

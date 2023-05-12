@@ -1,0 +1,82 @@
+[
+  {
+    "path": "\\delay_chain4_reg[3]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain4_reg[0]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain4_reg[2]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain4_reg[1]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain3_reg[0]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain3_reg[2]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain3_reg[3]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain3_reg[1]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain2_reg[1]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain2_reg[3]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain2_reg[2]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain2_reg[0]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain1_reg[3]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain1_reg[2]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain1_reg[0]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain1_reg[1]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain0_reg[1]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain0_reg[2]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain0_reg[3]",
+    "pin": "Q"
+  },
+  {
+    "path": "\\delay_chain0_reg[0]",
+    "pin": "Q"
+  }
+]

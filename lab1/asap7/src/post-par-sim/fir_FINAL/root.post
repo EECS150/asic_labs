@@ -1,0 +1,30 @@
+
+::db::check_and_set_root_attr extract_rc_engine {post_route}
+::db::check_and_set_root_attr add_fillers_cells {FILLER_ASAP7_75t_R FILLER_ASAP7_75t_L FILLER_ASAP7_75t_SL FILLER_ASAP7_75t_SRAM FILLERxp5_ASAP7_75t_R FILLERxp5_ASAP7_75t_L FILLERxp5_ASAP7_75t_SL FILLERxp5_ASAP7_75t_SRAM DECAPx1_ASAP7_75t_R DECAPx1_ASAP7_75t_L DECAPx1_ASAP7_75t_SL DECAPx1_ASAP7_75t_SRAM DECAPx2_ASAP7_75t_R DECAPx2_ASAP7_75t_L DECAPx2_ASAP7_75t_SL DECAPx2_ASAP7_75t_SRAM DECAPx4_ASAP7_75t_R DECAPx4_ASAP7_75t_L DECAPx4_ASAP7_75t_SL DECAPx4_ASAP7_75t_SRAM DECAPx6_ASAP7_75t_R DECAPx6_ASAP7_75t_L DECAPx6_ASAP7_75t_SL DECAPx6_ASAP7_75t_SRAM DECAPx10_ASAP7_75t_R DECAPx10_ASAP7_75t_L DECAPx10_ASAP7_75t_SL DECAPx10_ASAP7_75t_SRAM}
+::db::check_and_set_root_attr add_well_taps_cell {TAPCELL_ASAP7_75t_L}
+::db::check_and_set_root_attr assign_pins_edit_in_batch {false}
+::db::check_and_set_root_attr delaycal_enable_high_fanout {true}
+::db::check_and_set_root_attr delaycal_eng_copyNetPropToNewNet {true}
+::db::check_and_set_root_attr delaycal_ignore_net_load {false}
+::db::check_and_set_root_attr design_flow_effort {standard}
+::db::check_and_set_root_attr extract_rc_coupled {true}
+::db::check_and_set_root_attr extract_rc_coupling_cap_threshold {3.0}
+::db::check_and_set_root_attr extract_rc_model_file [list ${::IMEX::libVar}/misc/rc_model.bin]
+::db::check_and_set_root_attr extract_rc_relative_cap_threshold {0.03}
+::db::check_and_set_root_attr extract_rc_total_cap_threshold {5.0}
+::db::check_and_set_root_attr floorplan_default_power_domain_site {true}
+::db::check_and_set_root_attr opt_delete_insts {true}
+::db::check_and_set_root_attr opt_drv_margin {0.0}
+::db::check_and_set_root_attr opt_fix_drv {true}
+::db::check_and_set_root_attr opt_hier_trial_route_honor_read_only {false}
+::db::check_and_set_root_attr opt_preserve_all_sequential {false}
+::db::check_and_set_root_attr opt_resize_flip_flops {true}
+::db::check_and_set_root_attr opt_setup_target_slack {0.0}
+::db::check_and_set_root_attr opt_useful_skew_eco_route {false}
+::db::check_and_set_root_attr route_design_bottom_routing_layer {2}
+::db::check_and_set_root_attr route_design_detail_antenna_factor {1.0}
+::db::check_and_set_root_attr route_design_detail_post_route_spread_wire {auto}
+::db::check_and_set_root_attr route_design_detail_use_lef_pin_taper_rule {true}
+::db::check_and_set_root_attr route_design_extract_third_party_compatible {false}
+::db::check_and_set_root_attr route_design_top_routing_layer {7}
+::db::check_and_set_root_attr route_early_global_secondary_pg {false}
