@@ -1,1 +1,1 @@
-spec_sky130.md
+sky130/README.md
