@@ -221,5 +221,5 @@ Modified By:
 - Sean Huang (2021)
 - Daniel Grubb, Nayiri Krzysztofowicz, Zhaokai Liu (2021)
 - Dima Nikiforov (2022)
-- Roger Hsiao, Hansung Kim (2022)
+- Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan (2022)
 - Chengyi Zhang (2023)
