@@ -91,7 +91,7 @@ Note: MacOS sometimes blocks the X2Go download/install, if it does follow the di
 To use X2Go, you need to create a new session (look under the Session menu). Give the session any name, it doesn’t matter, but set the Host field to the FQDN of your lab machine and the User field to your instructional account username. For “Session type”, select “GNOME”. Here’s an example from macOS:
 
 <p align="center">
-<img src="./figs/x2gomacos.png" width="500" />
+<img src="/lab0/figs/x2gomacos.png" width="500" />
 </p>
 
 
@@ -100,7 +100,7 @@ To use X2Go, you need to create a new session (look under the Session menu). Giv
 After you login to one of these servers, you are now ready to start the lab.  You have a limited amount of space in your home directory, so we recommend completing work in the `/home/tmp` directory, and then copying any important results to your home directory. Your personal workspace, `/home/tmp/<your-eecs-username>` can be created by logging into the EECS Instructional WebAccount (http://inst.eecs.berkeley.edu/webacct) with your CalNet ID. Click on `More...`, then select `Make /home/tmp Directory`
 
 <p align="center">
-<img src="./figs/make_home_tmp_dir.png" width="400" />
+<img src="/lab0/figs/make_home_tmp_dir.png" width="400" />
 </p>
 
 To begin, get the lab files by typing the following commands:

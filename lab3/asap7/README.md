@@ -70,7 +70,7 @@ Then, finish the coprocessor implementation in `gcd_coprocessor.v`, so that the 
 
 
 <p align="center">
-<img src="./figs/gcd_coprocessor.png" width="600" />
+<img src="/lab3/figs/gcd_coprocessor.png" width="600" />
 </p>
 
 A testbench has been provided for you (`gcd_coprocessor_testbench.v`). You can run the testbench to test your code by typing `make sim-rtl` in the root directory as before.
@@ -228,23 +228,23 @@ The Innovus GUI will pop up with your layout and your terminal is now the Innovu
 Demonstrate that you are able to view your design when using Innovus.
 
 <p align="center">
-<img src="./figs/innovus_window.png" width="500" />
+<img src="/lab3/figs/innovus_window.png" width="500" />
 </p>
 
 
-Take a moment to familiarize yourself with the Innovus GUI. You should also toggle between the floorplan, amoeba, and placement views using the buttons that look like this: <img src="./figs/view_icons.png" width="40" />  and examine how the actual placement of the GCD datapath in ameoba view doesn’t follow our soft placement guidance in floorplan view. This is because our soft placement guidance clearly places the datapath farther away from the pins and would result in a worse clock tree!
+Take a moment to familiarize yourself with the Innovus GUI. You should also toggle between the floorplan, amoeba, and placement views using the buttons that look like this: <img src="/lab3/figs/view_icons.png" width="40" />  and examine how the actual placement of the GCD datapath in ameoba view doesn’t follow our soft placement guidance in floorplan view. This is because our soft placement guidance clearly places the datapath farther away from the pins and would result in a worse clock tree!
 
 Now, let’s take a look at the clock tree a couple different ways. In the right panel, under the “Net” category, hide from view all the types of nets except “Clock”. Your design should now look approximately like this, which shows the clock tree routing:
 
 <p align="center">
-<img src="./figs/clock_tree_nets.png" width="500" />
+<img src="/lab3/figs/clock_tree_nets.png" width="500" />
 </p>
 
 
 We can also see the clock tree in its “tree” form by going to the menu Clock → CCOpt Clock Tree Debugger and pressing OK in the popup dialog. A window should pop up looking approximately like this:
 
 <p align="center">
-<img src="./figs/clock_tree_debugger.png" width="500" />
+<img src="/lab3/figs/clock_tree_debugger.png" width="500" />
 </p>
 
 
@@ -253,7 +253,7 @@ The red dots are the “leaves”, the green triangles are the clock buffers, th
 Now, let’s visualize our critical path. Go to the menu Timing → Debug Timing and press OK in the popup dialog. A window will pop up that looks approximately like this:
 
 <p align="center">
-<img src="./figs/timing_debug.png" width="500" />
+<img src="/lab3/figs/timing_debug.png" width="500" />
 </p>
 
 Examine the histogram. This shows the number of paths for every amount of slack (on the x-axis), and you always want to see a green histogram! The shape of the histogram is a good indicator of how good your design is and how hard the tool is working to meet your timing constraints (*thought experiment #3:* how so, and what would be the the ideal histogram shape?).
@@ -261,7 +261,7 @@ Examine the histogram. This shows the number of paths for every amount of slack 
 Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the hammer cts debug folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this:
 
 <p align="center">
-<img src="./figs/critical_path_highlight.png" width="500" />
+<img src="/lab3/figs/critical_path_highlight.png" width="500" />
 </p>
 
 ---

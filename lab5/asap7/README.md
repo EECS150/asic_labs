@@ -258,7 +258,7 @@ see the floorplan as in the following image. Don’t forget to disable M8, V8, M
 pane to see the unobstructed floorplan.
 
 <p align="center">
-<img src="./figs/layout.png" width="400" />
+<img src="/lab5/figs/layout.png" width="400" />
 </p>
 
 This floorplan has two SRAM instances: `sram_a` and `sram_b`. The placement constraints of those
@@ -357,7 +357,7 @@ to do so is opening Genus log file, search for ”latch”). Also, your post PAR
 should pass the test in the testbench code.
 
 <p align="center">
-<img src="./figs/dp_div.png" width="500" />
+<img src="/lab5/figs/dp_div.png" width="500" />
 </p>
 
 
@@ -388,7 +388,7 @@ most common to least):
 
 
 <p align="center">
-<img src="./figs/drc.png" width="750" />
+<img src="/lab5/figs/drc.png" width="750" />
 </p>
 
 
@@ -413,7 +413,7 @@ everything, you will see this at the end a long design process, which is always 
 
 
 <p align="center">
-<img src="./figs/lvs_smiley.png" width="300" />
+<img src="/lab5/figs/lvs_smiley.png" width="300" />
 </p>
 
 ---

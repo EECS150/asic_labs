@@ -66,7 +66,7 @@ Here is a basic diagram of a VLSI design flow, in an ideal world where
 everything works the first time around:
 
 <p align="center">
-<img src="./figs/vlsi_flow.png" width="400" />
+<img src="/lab1/figs/vlsi_flow.png" width="400" />
 </p>
 
 
@@ -112,7 +112,7 @@ RTL simulation can be used to run unit tests to check a small block, as well as 
 For this lab, we will be using Verilog code that implements a very simple FIR (Finite Impulse Response) filter. A schematic of the filter is shown below.
 
 <p align="center">
-<img src="./figs/fir.png" width="500" />
+<img src="/lab1/figs/fir.png" width="500" />
 </p>
 
 There is an input signal and a clock input, and 5 delayed versions of the input are kept, multiplied
@@ -284,7 +284,7 @@ dve -vpd vcdplus.vpd &
 When DVE pops up, you should see the window below:
 
 <p align="center">
-<img src="./figs/dve.png" width="700" />
+<img src="/lab1/figs/dve.png" width="700" />
 </p>
 
 This window will contain the design hierarchy, the signals in that level, as well as a lot of other
@@ -298,7 +298,7 @@ a wave view open, then you can selectively add signals to one wave view or anoth
 of adding these waveforms is shown below.
 
 <p align="center">
-<img src="./figs/new_wave.png" width="700" />
+<img src="/lab1/figs/new_wave.png" width="700" />
 </p>
 
 After the window opens, you may need to adjust the zoom settings from “View — Zoom“ or the
@@ -312,7 +312,7 @@ the Min to be -32 and the max to be 32. Then you should see something similar to
 below.
 
 <p align="center">
-<img src="./figs/display_wave.png" width="700" />
+<img src="/lab1/figs/display_wave.png" width="700" />
 </p>
 
 For those of you who know a bit about FIR filters, this beginning section of the waveform is the
@@ -442,24 +442,24 @@ endmodule
 
 
 <p align="center">
-<img src="./figs/q1_a.png" width="300" />
+<img src="/lab1/figs/q1_a.png" width="300" />
 </p>
 
 **b.)** Using the schematic below and input waveforms, submit the equivalent Verilog code and a sketch of output waveforms.
 
 <p align="center">
-<img src="./figs/q1_b_1.png" width="300" />
+<img src="/lab1/figs/q1_b_1.png" width="300" />
 </p>
 
 <p align="center">
-<img src="./figs/q1_b_2.png" width="300" />
+<img src="/lab1/figs/q1_b_2.png" width="300" />
 </p>
 
 **c.)** Using the input and output waveforms provided below, submit the equivalent schematic and
 Verilog code. Hint: Use 1 flip-flop and 1 logic gate only. A is an input, X and Y are outputs.
 
 <p align="center">
-<img src="./figs/q1_c.png" width="300" />
+<img src="/lab1/figs/q1_c.png" width="300" />
 </p>
 
 ---
