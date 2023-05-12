@@ -22,7 +22,7 @@ vlsi.inputs.mmmc_corners: [
 # SRAM Compiler compiler options
 vlsi.core.sram_generator_tool: "hammer.technology.asap7.sram_compiler"
 # Specify this since we are not using macrocompiler
-vlsi.inputs.sram_parameters: "/home/aa/users/cs199-aap/conda/lib/python3.10/site-packages/hammer/technology/asap7/sram-cache.json"  # TODO
+vlsi.inputs.sram_parameters: "/scratch/nk/hammer/hammer/technology/asap7/sram-cache.json"  # TODO
 vlsi.inputs.sram_parameters_meta: ["transclude", "json2list"]
 
 # Tool options. Replace with your tool plugin of choice.
@@ -58,8 +58,8 @@ power.voltus.version: "181"  # TODO
 # Generate Make include to aid in flow 
 vlsi.core.build_system: make
 
-# # Slurm options
-# # TODO: put these in their own yaml file
-# vlsi.submit.command: "slurm"
-# vlsi.submit.settings:
-#   - slurm: {srun_binary: "/home/ff/eecs151/tools-151/scripts/srun151", extra_args: []}
+# Slurm options
+# TODO: put these in their own yaml file
+vlsi.submit.command: "slurm"
+vlsi.submit.settings:
+  - slurm: {srun_binary: "/home/ff/eecs151/tools-151/scripts/srun151", extra_args: []}
