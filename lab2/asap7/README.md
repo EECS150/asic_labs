@@ -15,21 +15,14 @@ College of Engineering, University of California, Berkeley
 
 
 ## Overview
-For this lab, you will learn how to translate RTL code into a gate-level netlist in a process called
-synthesis. In order to successfully synthesize your design, you will need to understand how to
-constrain your design, learn how the tools optimize logic and estimate timing, analyze the critical
-path of your design, and simulate the gate-level netlist.
-To begin this lab, get the project files by typing the following commands:
+For this lab, you will learn how to translate RTL code into a gate-level netlist in a process called synthesis. In order to successfully synthesize your design, you will need to understand how to constrain your design, learn how the tools optimize logic and estimate timing, analyze the critical path of your design, and simulate the gate-level netlist. To begin this lab, get the project files by typing the following commands:
 
 ```shell
 git clone /home/ff/eecs151/labs/lab2.git
 cd lab2
 ```
 
-You should add the following lines to the `.bashrc` file in your home folder
-(for more information about what `.bashrc` does, see https://www.tldp.org/LDP/abs/html/sample-bashrc.html)
-so that every time
-you open a new terminal you have the paths for the tools setup properly.
+You should add the following lines to the `.bashrc` file in your home folder (for more information about what `.bashrc` does, see https://www.tldp.org/LDP/abs/html/sample-bashrc.html) so that every time you open a new terminal you have the paths for the tools setup properly.
 
 ```shell
 source /home/ff/eecs151/asic/eecs151.bashrc
@@ -41,30 +34,18 @@ Type
 which genus
 ```
 
-to see if the shell prints out the path to the Cadence Genus Synthesis program (which we will be
-using for this lab). If it does not work, add the lines to your `.bash_profile` in your home folder
-as well. Try to open a new terminal to see if it works. The file `eecs151.bashrc` sets various
-environment variables in your system such as where to find the CAD programs or license servers.
+to see if the shell prints out the path to the Cadence Genus Synthesis program (which we will be using for this lab). If it does not work, add the lines to your `.bash_profile` in your home folder as well. Try to open a new terminal to see if it works. The file `eecs151.bashrc` sets various environment variables in your system such as where to find the CAD programs or license servers.
 
 
 ## Synthesis Environment
-To perform synthesis, we will be using Cadence Genus. However, we will not be interfacing with
-Genus directly, we will rather use Hammer. Just like in lab 2, we have set up the basic Hammer
-flow for your lab exercises using Makefile.
+To perform synthesis, we will be using Cadence Genus. However, we will not be interfacing with Genus directly, we will rather use Hammer. Just like in lab 1, we have set up the basic Hammer flow for your lab exercises using Makefile.
 
-In this lab repository, you will see two sets of input files for Hammer. The first set of files are
-the source codes for our design that you will explore in the next section. The second set of files are
-some YAML files (`inst-env.yml`, `asap7.yml`, `design.yml`, `sim-rtl.yml`, `sim-gl-syn.yml`) that
-configure the Hammer flow. Of these YAML files, you should only need to modify `design.yml`,
-`sim-rtl.yml` and `sim-gl-syn.yml` in order to configure the synthesis and simulation for your
-design.
+In this lab repository, you will see two sets of input files for Hammer. The first set of files are the source codes for our design that you will explore in the next section. The second set of files are some YAML files (`inst-env.yml`, 
+`asap7.yml`, <!---tech-->
+`design.yml`, `sim-rtl.yml`, `sim-gl-syn.yml`) that configure the Hammer flow. Of these YAML files, you should only need to modify `design.yml`, `sim-rtl.yml` and `sim-gl-syn.yml` in order to configure the synthesis and simulation for your design.
 
 
-Hammer is already setup at `/home/ff/eecs151/asic/hammer` with all the required plugins for Cadence
-Synthesis (Genus) and Place-and-Route (Innovus), Synopsys Simulator (VCS), Mentor Graphics
-DRC and LVS (Calibre). You should not need to install it on your own home directory. **These
-Hammer plugins are under NDA. They are provided to us for educational purpose.
-They should never be copied outside of instructional machines under any circumstances or else we are at risk of losing access to these tools in the future!!!**
+Hammer is already setup at `/home/ff/eecs151/asic/hammer` with all the required plugins for Cadence Synthesis (Genus) and Place-and-Route (Innovus), Synopsys Simulator (VCS), Mentor Graphics DRC and LVS (Calibre). You should not need to install it on your own home directory. **These Hammer plugins are under NDA. They are provided to us for educational purpose. They should never be copied outside of instructional machines under any circumstances or else we are at risk of losing access to these tools in the future!!!**
 
 Let us take a look at some parts of `design.yml` file:
 
@@ -72,9 +53,7 @@ Let us take a look at some parts of `design.yml` file:
 gcd.clockPeriod: &CLK_PERIOD "1ns"
 ```
 
-This option sets the target clock speed for our design. A more stringent target (a shorter clock
-period) will make the tool work harder and use higher-power gates to meet the 
-constraints. A more relaxed timing target allows the tool to focus on reducing area and/or power.
+This option sets the target clock speed for our design. A more stringent target (a shorter clock period) will make the tool work harder and use higher-power gates to meet the  constraints. A more relaxed timing target allows the tool to focus on reducing area and/or power.
 In the sim-rtl.yml:
 
 ```yaml
@@ -82,9 +61,7 @@ defines:
   - "CLOCK_PERIOD=1.00"
 ```
 
-This option sets the clock period used during simulation. It is generally useful to separate the two as
-you might want to see how the circuit performs under different clock frequencies without changing
-the design constraints. Continuing from `design.yml`:
+This option sets the clock period used during simulation. It is generally useful to separate the two as you might want to see how the circuit performs under different clock frequencies without changing the design constraints. Continuing from `design.yml`:
 
 ```yaml
 gcd.verilogSrc: &VERILOG_SRC
@@ -112,15 +89,10 @@ vlsi.inputs.clocks: [
 ]
 ```
 
-This is where we specify to Hammer that we intend on using the `CLK_PERIOD` we defined earlier
-as the constraint for our design. We will see more detailed constraints in later labs.
+This is where we specify to Hammer that we intend on using the `CLK_PERIOD` we defined earlier as the constraint for our design. We will see more detailed constraints in later labs.
 
 ## Understanding the example design
-We have provided a circuit described in Verilog that computes the greatest common divisor (GCD)
-of two numbers. Unlike the FIR filter from the last lab, in which the testbench constantly provided
-stimuli, the GCD algorithm takes a variable number of cycles, so the testbench needs to know when
-the circuit is done to check the output. This is accomplished through a “ready/valid” handshake
-protocol. This protocol shows up in many places in digital circuit design.
+We have provided a circuit described in Verilog that computes the greatest common divisor (GCD) of two numbers. Unlike the FIR filter from the last lab, in which the testbench constantly provided stimuli, the GCD algorithm takes a variable number of cycles, so the testbench needs to know when the circuit is done to check the output. This is accomplished through a “ready/valid” handshake protocol. This protocol shows up in many places in digital circuit design.
 Look [here](https://inst.eecs.berkeley.edu/~eecs151/fa21/files/verilog/ready_valid_interface.pdf) at information on the course website for more background.
 The GCD top level is shown in the figure below.
 
@@ -146,38 +118,26 @@ module gcd#( parameter W = 16 )
 ```
 
 On the `operands` boundary, nothing will happen until GCD is ready to receive data (`operands_rdy`).
-When this happens, the testbench will place data on the operands (`operands_bits_A` and `operands_bits_B`),
-but GCD will not start until the testbench declares that these operands are valid (`operands_val`).
+When this happens, the testbench will place data on the operands (`operands_bits_A` and `operands_bits_B`), but GCD will not start until the testbench declares that these operands are valid (`operands_val`).
 Then GCD will start.
 
-The testbench needs to know that GCD is not done. This will be true as long as `result_val` is 0
-(the results are not valid). Also, even if GCD is finished, it will hold the result until the testbench is
-prepared to receive the data (`result_rdy`). The testbench will check the data when GCD declares
-the results are valid by setting `result_val` to 1.
+The testbench needs to know that GCD is not done. This will be true as long as `result_val` is 0 (the results are not valid). Also, even if GCD is finished, it will hold the result until the testbench is prepared to receive the data (`result_rdy`). The testbench will check the data when GCD declares the results are valid by setting `result_val` to 1.
 
-The contract is that if the interface declares it is ready while the other side declares it is valid, the
-information must be transferred.
+The contract is that if the interface declares it is ready while the other side declares it is valid, the information must be transferred.
 
 Open `src/gcd.v`. This is the top-level of GCD and just instantiates `gcd_control` and `gcd_datapath`.
 Separating files into control and datapath is generally a good idea. Open `src/gcd_datapath.v`.
 This file stores the operands, and contains the logic necessary to implement the algorithm (subtraction and comparison). Open `src/gcd_control.v`. This file contains a state machine that handles
 the ready-valid interface and controls the mux selects in the datapath. Open `src/gcd_testbench.v`.
-This file sends different operands to GCD, and checks to see if the correct GCD was found. Make
-sure you understand how this file works. Note that the inputs are changed on the negative edge
-of the clock. This will prevent hold time violations for gate-level simulation, because once a clock
-tree has been added, the input flops will register data at a time later than the testbench’s rising
-edge of the clock.
+This file sends different operands to GCD, and checks to see if the correct GCD was found. Make sure you understand how this file works. Note that the inputs are changed on the negative edge of the clock. This will prevent hold time violations for gate-level simulation, because once a clock tree has been added, the input flops will register data at a time later than the testbench’s rising edge of the clock.
 
 Now simulate the design by running `make sim-rtl`. The waveform is located under `build/sim-rundir/`.
-Open the waveform in DVE (you may need to scroll down in DVE to find the testbench) and try
-to understand how the code works by comparing the waveforms with the Verilog code. It might
-help to sketch out a state machine diagram and draw the datapath.
+Open the waveform in DVE (you may need to scroll down in DVE to find the testbench) and try to understand how the code works by comparing the waveforms with the Verilog code. It might help to sketch out a state machine diagram and draw the datapath.
 
 ---
 ### Question 1: Understanding the algorithm
 
-By reading the provided Verilog code and/or viewing the RTL level simulations, demonstrate that
-you understand the provided code:
+By reading the provided Verilog code and/or viewing the RTL level simulations, demonstrate that you understand the provided code:
 
 **a.) Draw a table with 5 columns (cycle number, value of `A_reg`, value of `B_reg`, `A_next`, `B_next`) and fill in all of the rows for the first test vector (GCD of 27 and 15)**
 
@@ -215,48 +175,32 @@ you understand the provided code:
 
 ---
 ## Synthesis
-Synthesis is the process of converting your Verilog RTL description into technology (or platform, in the case of
-FPGAs) specific gate-level Verilog. These gates are different from the “and”, “or”, “xor” etc. primitives in Verilog. While the logic primitives correspond to gate-level operations, they do not have
-a physical representation outside of their symbol. A synthesized gate-level Verilog netlist only contains
-cells with corresponding physical aspects: they have a transistor-level schematic with transistor
-sizes provided, a physical layout containing information necessary for fabrication, timing libraries
-providing performance specifications, etc. Some synthesis tools also output assign statements that
-refer to pass-through interfaces, but no logic operation is performed in these assignments (not even
-simple inversion!).
+Synthesis is the process of converting your Verilog RTL description into technology (or platform, in the case of FPGAs) specific gate-level Verilog. These gates are different from the “and”, “or”, “xor” etc. primitives in Verilog. While the logic primitives correspond to gate-level operations, they do not have a physical representation outside of their symbol. A synthesized gate-level Verilog netlist only contains cells with corresponding physical aspects: they have a transistor-level schematic with transistor sizes provided, a physical layout containing information necessary for fabrication, timing libraries providing performance specifications, etc. Some synthesis tools also output assign statements that refer to pass-through interfaces, but no logic operation is performed in these assignments (not even simple inversion!).
 
 
-Open the Makefile to see the available targets that you can run. You don’t have to know all of
-these for now. The Makefile provides shorthands to various Hammer commands for synthesis,
-placement-and-routing, or simulation. Read [Hammer-Flow](https://hammer-vlsi.readthedocs.io/en/latest/Hammer-Flow/index.html) if you want to get more detail.
+Open the Makefile to see the available targets that you can run. You don’t have to know all of these for now. The Makefile provides shorthands to various Hammer commands for synthesis, placement-and-routing, or simulation. Read [Hammer-Flow](https://hammer-vlsi.readthedocs.io/en/latest/Hammer-Flow/index.html) if you want to get more detail.
 
 The first step is to have Hammer generate the necessary supplement Makefile (`build/hammer.d`). To do so, type the
 following command in the lab directory:
 
     make buildfile
 
-This generates a file with make targets specific to the constraints we have provided inside the YAML
-files. If you have not run `make clean` after simulating, this file should already be generated. `make buildfile` also copies and extracts a tarball of the ASAP7 PDK to your local workspace. It will
-take a while to finish if you run this command first time. The extracted PDK is not deleted when
-you do `make clean` to avoid unnecessarily rebuilding the PDK. To explicitly remove it, you need to
-remove the build folder (and you should do it once you finish the lab to save your allocated disk
-space since the PDK is huge). To synthesize the GCD, use the following command:
+This generates a file with make targets specific to the constraints we have provided inside the YAML files. If you have not run `make clean` after simulating, this file should already be generated.
+`make buildfile` also copies and extracts a tarball of the ASAP7 PDK to your local workspace. It will take a while to finish if you run this command first time. The extracted PDK is not deleted when you do `make clean` to avoid unnecessarily rebuilding the PDK. To explicitly remove it, you need to remove the build folder (and you should do it once you finish the lab to save your allocated disk space since the PDK is huge).<!---tech-->
+To synthesize the GCD, use the following command:
 
     make syn
 
 This runs through all the steps of synthesis. 
 By default, Hammer puts the generated objects under the directory build. Go to `build/syn-rundir/reports`. 
-There are five text files here that contain very useful information about
-the synthesized design that we just generated. Go through these files and familiarize yourself with
-these reports. One report of particular note is `final_time_PVT_0P63V_100C.setup.view.rpt`. The
-name of this file represents that it is a timing report, with the Process Voltage Temperature corner
-of 0.63 V and 100 degrees C, and that it contains the setup timing checks. Another important file
-is `build/syn-rundir/gcd.mapped.v`. This is your synthesized gate-level Verilog. Go through it
-to see what the RTL design has become to represent it in terms of technology-specific gates. Try
-to follow an input through these gates to see the path it takes until the output.
+There are five text files here that contain very useful information about the synthesized design that we just generated. Go through these files and familiarize yourself with these reports. One report of particular note is 
+`final_time_PVT_0P63V_100C.setup.view.rpt`. <!---tech-->
+The name of this file represents that it is a timing report, with the Process Voltage Temperature corner of 0.63 V and 100 degrees C, and that it contains the setup timing checks. Another important file is `build/syn-rundir/gcd.mapped.v`. This is your synthesized gate-level Verilog. Go through it to see what the RTL design has become to represent it in terms of technology-specific gates. Try to follow an input through these gates to see the path it takes until the output.
 These files are useful for debugging and evaluating your design.
 
-Now open the `final_time_PVT_0P63V_100C.setup.view.rpt` file and look at the first block of text
-you see. It should look similar to this:
+Now open the 
+`final_time_PVT_0P63V_100C.setup.view.rpt` <!---tech-->
+file and look at the first block of text you see. It should look similar to this:
 
 ```text
 Path 1: MET (474 ps) Setup Check with Pin GCDdpath0/A_reg_reg[15]/CLK->D
@@ -297,16 +241,10 @@ GCDdpath0/g1193__6417/Y - C1->Y F AOI222xp33_ASAP7_75t_SL 1 0.7 124 51 501 (-,-)
 GCDdpath0/A_reg_reg[15]/D - - F ASYNC_DFFHx1_ASAP7_75t_SL 1 - - 0 501 (-,-)
 #---------------------------------------------------------------------------------------------------------------------
 ```
+<!---tech-->
 
-This is one of the most common ways to assess the critical paths in your circuit. 
-The setup timing report lists each timing path's **slack**, which is the extra delay the signal can have before a setup
-violation occurs, in ascending order. The first block indicates the critical path of the design.
-Each row represents a timing path from a gate to the next, and the whole block is the **timing
-arc** between two flip-flops (or in some cases between latches). The `MET` at the top of the block
-indicates that the timing requirements have been met and there is no violation. If there was, this
-indicator would have read `VIOLATED`. Since our critical path meets the timing requirements with
-a 474 ps of slack, this means we can run this synthesized design with a period equal to clock period
-(1000 ps) minus the critical path slack (474 ps), which is 526 ps.
+This is one of the most common ways to assess the critical paths in your circuit.  The setup timing report lists each timing path's **slack**, which is the extra delay the signal can have before a setup violation occurs, in ascending order. The first block indicates the critical path of the design. Each row represents a timing path from a gate to the next, and the whole block is the **timing arc** between two flip-flops (or in some cases between latches). The `MET` at the top of the block indicates that the timing requirements have been met and there is no violation. If there was, this indicator would have read `VIOLATED`. 
+Since our critical path meets the timing requirements with a 474 ps of slack, this means we can run this synthesized design with a period equal to clock period (1000 ps) minus the critical path slack (474 ps), which is 526 ps. <!---tech-->
 
 ---
 
@@ -315,7 +253,7 @@ a 474 ps of slack, this means we can run this synthesized design with a period e
 
 **b) Which report contains area breakdown by modules in the design?**
 
-**c) What is the cell used for `A_reg_reg[7]`? How much leakage power does `A_reg_reg[7]` contribute? How did you find this?**
+**c) What is the cell used for `A_register/q_reg[7]`? How much leakage power does `A_register/q_reg[7]` contribute? How did you find this?**
 
 ---
 
@@ -328,14 +266,10 @@ a 474 ps of slack, this means we can run this synthesized design with a period e
 
 ### Synthesis: Step-by-step
 
-Typically, we will be roughly following the above section’s flow, but it is also
-useful to know what is going on underneath. In this section,
-we will look at the steps Hammer takes to get from RTL Verilog to all the outputs we saw in the
-last section.
+Typically, we will be roughly following the above section’s flow, but it is also useful to know what is going on underneath. In this section, we will look at the steps Hammer takes to get from RTL Verilog to all the outputs we saw in the last section.
 
 First, type `make clean` to clean the environment of previous build’s files. Then, use `make buildfile`
-to generate the supplementary Makefile as before. Now, we will modify the `make syn` command to
-only run the steps we want. Go through the following commands in the given order:
+to generate the supplementary Makefile as before. Now, we will modify the `make syn` command to only run the steps we want. Go through the following commands in the given order:
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step init_environment"
 
@@ -344,19 +278,15 @@ provided in the `design.yml` file.
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step syn_generic"
 
-This step is the **generic synthesis** step. In this step, Genus converts our RTL read
-in the previous step into an intermediate format, made up of technology-independent generic gates. These
-gates are purely for gate-level functional representation of the RTL we have coded, and are going
-to be used as an input to the next step. This step also performs logical optimizations on our design
-to eliminate any redundant/unused operations.
+This step is the **generic synthesis** step. In this step, Genus converts our RTL read in the previous step into an intermediate format, made up of technology-independent generic gates. These
+gates are purely for gate-level functional representation of the RTL we have coded, and are going to be used as an input to the next step. This step also performs logical optimizations on our design to eliminate any redundant/unused operations.
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step syn_map"
 
-This step is the **mapping** step. Genus takes its own generic gate-level output and converts it to
-our ASAP7-specific gates. This step further optimizes the design given the gates in our technology.
-That being said, this step can also increase the number of gates from the previous step as not
-all gates in the generic gate-level Verilog may be available for our use and they may need to be
-constructed using several, simpler gates.
+This step is the **mapping** step. Genus takes its own generic gate-level output and converts it to our 
+ASAP7-specific gates. <!---tech-->
+This step further optimizes the design given the gates in our technology.
+That being said, this step can also increase the number of gates from the previous step as not all gates in the generic gate-level Verilog may be available for our use and they may need to be constructed using several, simpler gates.
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step add_tieoffs"
 
@@ -364,8 +294,7 @@ In some designs, the pins in certain cells are hardwired to 0 or 1, which requir
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step write_regs"
 
-This step is purely for the benefit of the designer. For some designs, we may need to have a list
-of all the registers in our design. In this lab, the list of regs is used in post-synthesis simulation to
+This step is purely for the benefit of the designer. For some designs, we may need to have a list of all the registers in our design. In this lab, the list of regs is used in post-synthesis simulation to
 generate the `force_regs.ucli`, which sets initial states of registers.
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step generate_reports"
@@ -374,9 +303,7 @@ The reports we have seen in the previous section are generated during this step.
 
     make redo-syn HAMMER_EXTRA_ARGS="--stop_after_step write_outputs"
 
-This step writes the outputs of the synthesis flow. This includes the gate-level `.v` file we looked at
-earlier in the lab. Other outputs include the design constraints (such as clock frequencies, output
-loads etc., in `.sdc` format) and delays between cells (in `.sdf` format).
+This step writes the outputs of the synthesis flow. This includes the gate-level `.v` file we looked at earlier in the lab. Other outputs include the design constraints (such as clock frequencies, output loads etc., in `.sdc` format) and delays between cells (in `.sdf` format).
 
 ## Post-Synthesis Simulation
 From the root folder, type the following commands:
@@ -404,17 +331,12 @@ Check the waveforms in DVE.
 ---
 
 ## Build Your Divider
-In this section, you will build a parameterized divider of unsigned integers. Some initial code has
-been provided to help you get started. To keep the control logic simple, the divider module uses an input
+In this section, you will build a parameterized divider of unsigned integers. Some initial code has been provided to help you get started. To keep the control logic simple, the divider module uses an input
 signal `start` to begin the computation at the next clock cycle, and asserts an output signal `done` to
-HIGH when the division result is valid. The input `dividend` and `divisor` should be registered
-when `start` is HIGH. You are not required to handle corner cases such as dividing by 0. You are
-free to modify the skeleton code to implement a ready/valid interface instead, but it is not required.
+HIGH when the division result is valid. The input `dividend` and `divisor` should be registered when `start` is HIGH. You are not required to handle corner cases such as dividing by 0. You are free to modify the skeleton code to implement a ready/valid interface instead, but it is not required.
 
 It is suggested that you implement the divide algorithm described [here](http://bwrcs.eecs.berkeley.edu/Classes/icdesign/ee141_s04/Project/Divider%20Background.pdf). Use the **Divide Algorithm Version 2** (slide 9).
-A simple testbench skeleton is also provided to you. You should change it to add more test vectors,
-or test your divider with different bitwidths. You need to change the file `sim-rtl.yml` to use your
-divider instead of the GCD module when testing.
+A simple testbench skeleton is also provided to you. You should change it to add more test vectors, or test your divider with different bitwidths. You need to change the file `sim-rtl.yml` to use your divider instead of the GCD module when testing.
 
 ---
 
