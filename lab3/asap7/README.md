@@ -66,7 +66,7 @@ This FIFO is implemented with a 2-dimensional array of data called `buffer`. The
 A partially written FIFO has been provided for you in `fifo.v`. Using the information above, complete the FIFO implementation so that it behaves as expected.
 
 
-Then, finish the coprocessor implementation in `gcd_coprocessor.v`, so that the GCD unit and FIFOs are connected like in the following diagram. Note the connection between the `gcd_datapath` and `gcd_control` should be very similar to that in Lab 3’s `gcd.v` and that clock and reset are omitted from the diagram. You will need to think about how to manage a ready/valid decoupled interface with 2 FIFOs in parallel.
+Then, finish the coprocessor implementation in `gcd_coprocessor.v`, so that the GCD unit and FIFOs are connected like in the following diagram. Note the connection between the `gcd_datapath` and `gcd_control` should be very similar to that in Lab 2’s `gcd.v` and that clock and reset are omitted from the diagram. You will need to think about how to manage a ready/valid decoupled interface with 2 FIFOs in parallel.
 
 
 <p align="center">
@@ -88,7 +88,7 @@ In this lab, you will begin to implement your GCD coprocessor in physical layout
 
 ### Setting up for P&R
 
-We will first bring our design to the point we stopped in Lab 3. Synthesize your design:
+We will first bring our design to the point we stopped in Lab 2. Synthesize your design:
 
 
 ```shell
@@ -104,7 +104,7 @@ Floorplan constraints can be “hard” or “soft”. “Hard” constraints ge
 
 In this lab, we will just look at allocating a custom sized area to our design, specified in the `design.yml` file. Open up this file and locate the following text block:
 
-```verilog
+```yaml
 # Placement Constraints
 vlsi.inputs.placement_constraints:
   - path: "gcd_coprocessor"
@@ -124,6 +124,7 @@ vlsi.inputs.placement_constraints:
     y: 50
     width: 50
     height: 50
+
 # Pin Placement Constraints
 vlsi.inputs.pin_mode: generated
 vlsi.inputs.pin.generate_mode: semi_auto
@@ -131,6 +132,7 @@ vlsi.inputs.pin.assignments: [
   {pins: "*", layers: ["M5", "M7"], side: "bottom"}
 ]
 ```
+<!---tech-->
 
 The `vlsi.inputs.placement_constraints` block specifies 2 floorplan constraints. The first one denotes the origin `(x, y)`, size `(width, height)` and border margins of the top-level block `gcd_coprocessor`. The second one denotes a soft placement constraint on the GCD datapath to be roughly in the center of the floorplan. For complicated designs, floorplans of major modules are often defined separately, and then assembled together hierarchically.
 
@@ -142,37 +144,38 @@ After the cells are placed, they are not “locked”–they can be moved around
 
 ### Power
 
+In the middle of the 
+`asap7.yml` <!---tech-->
+file, you will see this block, which contains parameters to HAMMER’s power strap auto-calculation API:
 
-In the middle of the `asap7.yml` file, you will see this block, which contains parameters to HAMMER’s power strap auto-calculation API:
-
-```verilog
+```yaml
 # Power Straps
 par.power_straps_mode: generate
 par.generate_power_straps_method: by_tracks
 par.blockage_spacing: 2.0
 par.generate_power_straps_options:
-by_tracks:
-strap_layers:
-    - M3
-    - M4
-    - M5
-    - M6
-    - M7
-    - M8
-    - M9
-track_width: 14
-track_width_M3: 7
-track_width_M5: 24
-track_width_M8: 6
-track_width_M9: 6
-track_spacing: 0
-power_utilization: 0.25
-power_utilization_M8: 1.0
-power_utilization_M9: 1.0
+  by_tracks:
+    strap_layers:
+      - M3
+      - M4
+      - M5
+      - M6
+      - M7
+      - M8
+      - M9
+    track_width: 14
+    track_width_M3: 7
+    track_width_M5: 24
+    track_width_M8: 6
+    track_width_M9: 6
+    track_spacing: 0
+    power_utilization: 0.25
+    power_utilization_M8: 1.0
+    power_utilization_M9: 1.0
 ```
+<!---tech-->
 
-
-Power must be delivered to the cells from the topmost metal layers all the way down to the transistors, in a fashion that minimizes the overall resistance of the power wires without eating up all the resources that are needed for wiring the cells together. You will learn about power distribution briefly at the end of this course’s lectures, but the preferred method is to place interconnected grids of wide wires on every metal layer. There are tools to analyze the quality of the `power_distribution` network, which like the post-P&R simulations you did in Lab 2, calculate how the current being drawn by the circuit is transiently distributed across the power grid.
+Power must be delivered to the cells from the topmost metal layers all the way down to the transistors, in a fashion that minimizes the overall resistance of the power wires without eating up all the resources that are needed for wiring the cells together. You will learn about power distribution briefly at the end of this course’s lectures, but the preferred method is to place interconnected grids of wide wires on every metal layer. There are tools to analyze the quality of the `power_distribution` network, which like the post-P&R simulations you did in Lab 1, calculate how the current being drawn by the circuit is transiently distributed across the power grid.
 
 You should not need to touch this block of yaml, because the parameters are tuned for meeting design rules in this technology. However, the important parameter is `power_utilization`, which specifies that approximately 25% of the available routing space on each metal layer should be reserved for power, with the exception of Metals 8 and 9, which should have 100% coverage.
 
@@ -228,7 +231,7 @@ The Innovus GUI will pop up with your layout and your terminal is now the Innovu
 Demonstrate that you are able to view your design when using Innovus.
 
 <p align="center">
-<img src="/lab3/figs/innovus_window.png" width="500" />
+<img src="/lab3/figs/innovus_window.png" width="500" /> <!---tech-->
 </p>
 
 
@@ -237,14 +240,14 @@ Take a moment to familiarize yourself with the Innovus GUI. You should also togg
 Now, let’s take a look at the clock tree a couple different ways. In the right panel, under the “Net” category, hide from view all the types of nets except “Clock”. Your design should now look approximately like this, which shows the clock tree routing:
 
 <p align="center">
-<img src="/lab3/figs/clock_tree_nets.png" width="500" />
+<img src="/lab3/figs/clock_tree_nets.png" width="500" /> <!---tech-->
 </p>
 
 
 We can also see the clock tree in its “tree” form by going to the menu Clock → CCOpt Clock Tree Debugger and pressing OK in the popup dialog. A window should pop up looking approximately like this:
 
 <p align="center">
-<img src="/lab3/figs/clock_tree_debugger.png" width="500" />
+<img src="/lab3/figs/clock_tree_debugger.png" width="500" /> <!---tech-->
 </p>
 
 
@@ -253,15 +256,15 @@ The red dots are the “leaves”, the green triangles are the clock buffers, th
 Now, let’s visualize our critical path. Go to the menu Timing → Debug Timing and press OK in the popup dialog. A window will pop up that looks approximately like this:
 
 <p align="center">
-<img src="/lab3/figs/timing_debug.png" width="500" />
+<img src="/lab3/figs/timing_debug.png" width="500" /> <!---tech-->
 </p>
 
 Examine the histogram. This shows the number of paths for every amount of slack (on the x-axis), and you always want to see a green histogram! The shape of the histogram is a good indicator of how good your design is and how hard the tool is working to meet your timing constraints (*thought experiment #3:* how so, and what would be the the ideal histogram shape?).
 
-Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the hammer cts debug folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this:
+Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the `hammer_cts_debug` folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this:
 
 <p align="center">
-<img src="/lab3/figs/critical_path_highlight.png" width="500" />
+<img src="/lab3/figs/critical_path_highlight.png" width="500" /> <!---tech-->
 </p>
 
 ---
@@ -282,6 +285,7 @@ f) (UNGRADED thought experiment #3) P&R tools have a goal to minimize power whil
 ---
 
 When you are done, you may exit Innovus by closing the GUI window.
+
 ## Under the Hood: Innovus
 While HAMMER obfuscates a lot from the end-user in terms of tool-based commands, most IC companies directly interface with Innovus and it is useful to know what tool-specific commands you are running in case you need to debug your circuit step-by-step. Therefore, we will now look into par.tcl and follow along using Innovus. Make sure you are in the directory `build/par-rundir` and type:
 

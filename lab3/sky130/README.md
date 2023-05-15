@@ -1,10 +1,9 @@
-# EECS 151/251A ASIC Lab 4: Floorplanning, Placement, Power, and CTS
-
+# EECS 151/251A ASIC Lab 3: Floorplanning, Placement, Power, and CTS
 <p align="center">
 Prof. Bora Nikolic
 </p>
 <p align="center">
-TAs: Daniel Grubb, Nayiri Krzysztofowicz, Zhaokai Liu
+TA (ASIC): Ken Ho
 </p>
 <p align="center">
 Department of Electrical Engineering and Computer Science
@@ -16,10 +15,17 @@ College of Engineering, University of California, Berkeley
 ## Overview
 This lab consists of three parts. For the first part, you will be writing a GCD coprocessor that could be included alongside a general-purpose CPU (like your final project). You will then learn how the tools can create a floorplan, route power straps, place standard cells, perform timing optimizations, and generate a clock tree for your design. Finally, you will get a slight head start on your project by writing part of the ALU.
 
+This lab contains a series of conceptual questions labeled as *thought experiments.* These will not be graded and should not be included in your lab report. They are meant to deepen your understanding of the material, and serve as discussion points during your lab section.
+
 To begin this lab, get the project files and set up your environment by typing the following command and sourcing the `eecs151.bashrc` file, as usual:
 
 ```shell
-git clone /home/ff/eecs151/fa21/sky130/lab4-sky130.git
+source /home/ff/eecs151/asic/eecs151.bashrc
+```
+
+```shell
+git clone /home/ff/eecs151/labs/lab3.git
+cd lab3
 ```
 
 You should also clean up the build directory generated from the previous labs to save some disk space.
@@ -60,11 +66,11 @@ This FIFO is implemented with a 2-dimensional array of data called `buffer`. The
 A partially written FIFO has been provided for you in `fifo.v`. Using the information above, complete the FIFO implementation so that it behaves as expected.
 
 
-Then, finish the coprocessor implementation in `gcd_coprocessor.v`, so that the GCD unit and FIFOs are connected like in the following diagram. Note the connection between the `gcd_datapath` and `gcd_control` should be very similar to that in Lab 3’s `gcd.v` and that clock and reset are omitted from the diagram. You will need to think about how to manage a ready/valid decoupled interface with 2 FIFOs in parallel.
+Then, finish the coprocessor implementation in `gcd_coprocessor.v`, so that the GCD unit and FIFOs are connected like in the following diagram. Note the connection between the `gcd_datapath` and `gcd_control` should be very similar to that in Lab 2’s `gcd.v` and that clock and reset are omitted from the diagram. You will need to think about how to manage a ready/valid decoupled interface with 2 FIFOs in parallel.
 
 
 <p align="center">
-<img src="./figs/gcd_coprocessor.png" width="600" />
+<img src="/lab3/figs/gcd_coprocessor.png" width="600" />
 </p>
 
 A testbench has been provided for you (`gcd_coprocessor_testbench.v`). You can run the testbench to test your code by typing `make sim-rtl` in the root directory as before.
@@ -72,33 +78,33 @@ A testbench has been provided for you (`gcd_coprocessor_testbench.v`). You can r
 ---
 ### Question 1: Design
 
-**a) Submit your code (`gcd_coprocessor.v` and `fifo.v`) and show that your code works (VCS output is fine).**
+a) Submit your code (`gcd_coprocessor.v` and `fifo.v`) and show that your code works (VCS output is fine)
 
 ---
 
 ## Introducing Place and Route
 
-In this lab, you will begin to implement your GCD coprocessor in physical layout–the next step towards making it a real integrated circuit. Place & Route (P&R or PAR) itself is a much longer process than synthesis, so for this lab we will look at the first few (and arguably most important) steps: floorplanning, placement, power straps, and clock tree synthesis (CTS). The rest will be introduced in the next lab.
+In this lab, you will begin to implement your GCD coprocessor in physical layout–the next step towards making it a real integrated circuit. Place & Route (P&R or PAR) itself is a much longer process than synthesis, so for this lab we will look at the first few steps: floorplanning, placement, power straps, and clock tree synthesis (CTS). The rest will be introduced in the next lab.
 
 ### Setting up for P&R
 
-We will first bring our design to the point we stopped in Lab 3. Synthesize your design:
+We will first bring our design to the point we stopped in Lab 2. Synthesize your design:
 
 
 ```shell
 make syn
 ```
 
-Before proceeding, make sure your design is working correctly. It should meet timing at the default 10ns clock period in the setup corner with plenty of slack.
+Before proceeding, make sure your design meets timing at the default 1ns clock period.
 
 ### Floorplanning & Placement
-Floorplanning is the process of allocating area to the design as well as putting constraints on how this area is utilized. Floorplanning is often the most important factor for determining a physical circuit’s performance, because intelligent floorplanning can assist the tool in minimizing the delays in the design, especially if the total area is highly constrained.
+Floorplanning is the process of allocating area to the design and constraining how the area is utilized. Floorplanning is often the most important factor for determining a physical circuit’s performance, because intelligent floorplanning can assist the tool in minimizing the delays in the design, especially if the total area is highly constrained.
 
 Floorplan constraints can be “hard” or “soft”. “Hard” constraints generally involve pre-placement of “macros”, which can be anything from memory elements (SRAM arrays, in an upcoming lab) to analog black boxes (like PLLs or LDOs). “Soft” constraints are generally guided placements of hierarchical modules in the design (e.g. the datapath, controller, and FIFOs in your coprocessor), towards certain regions of the floorplan. Generally, the P&R tool does a good job of placing hierarchical modules optimally, but sometimes, a little human assistance is necessary to eke out the last bit of performance.
 
-In this lab, we will just look at allocating a custom sized area to our design, specified in the `design-sky130.yml` file. Open up this file and locate the following text block:
+In this lab, we will just look at allocating a custom sized area to our design, specified in the `design.yml` file. Open up this file and locate the following text block:
 
-```verilog
+```yaml
 # Placement Constraints
 vlsi.inputs.placement_constraints:
   - path: "gcd_coprocessor"
@@ -112,24 +118,25 @@ vlsi.inputs.placement_constraints:
       right: 10
       top: 10
       bottom: 10
-  - path: "gcd_coprocessor/GCDpath0"
+  - path: "gcd_coprocessor/GCDdpath0"
     type: "placement"
     x: 50
     y: 50
     width: 50
     height: 50
 
-# Pin placement constraints
+# Pin Placement Constraints
 vlsi.inputs.pin_mode: generated
 vlsi.inputs.pin.generate_mode: semi_auto
 vlsi.inputs.pin.assignments: [
   {pins: "*", layers: ["met2", "met4"], side: "bottom"}
 ]
 ```
+<!---tech-->
 
-The `vlsi.inputs.placement_constraints` block specifies two floorplan constraints. The first one denotes the origin `(x, y)`, size `(width, height)` and border margins of the top-level block `gcd_coprocessor`. The second one denotes a soft placement constraint on the GCD datapath to be roughly in the center of the floorplan. For complicated designs, floorplans of major modules are often defined separately, and then assembled together hierarchically.
+The `vlsi.inputs.placement_constraints` block specifies 2 floorplan constraints. The first one denotes the origin `(x, y)`, size `(width, height)` and border margins of the top-level block `gcd_coprocessor`. The second one denotes a soft placement constraint on the GCD datapath to be roughly in the center of the floorplan. For complicated designs, floorplans of major modules are often defined separately, and then assembled together hierarchically.
 
-Pin constraints are also shown here. All that we need to see is that all pins are located at the bottom boundary of the design, on metal 2 and metal 4 layers. Pin placement becomes very important in a hierarchical design, if modules need to abut each other.
+Pin constraints are also shown here. All that we need to see is that all pins are located at the bottom boundary of the design, on Metal 5 and Metal 7 layers. Pin placement becomes very important in a hierarchical design, if modules need to abut each other.
 
 Placement is the process of placing the synthesized design (structural connection of standard cells) onto the specified floorplan. While there is placement of minor cells (such as bulk connection cells, antenna-effect prevention cells, I/O buffers...) that take place separately and in between various stages of design, “placement” usually refers to the initial placement of the standard cells.
 
@@ -137,8 +144,9 @@ After the cells are placed, they are not “locked”–they can be moved around
 
 ### Power
 
-
-In the middle of the `sky130.yml` file, you will see this block, which contains parameters to HAMMER’s power strap auto-calculation API:
+In the middle of the 
+`sky130.yml` <!---tech-->
+file, you will see this block, which contains parameters to HAMMER’s power strap auto-calculation API:
 
 ```yaml
 # Power Straps
@@ -159,12 +167,13 @@ par.generate_power_straps_options:
     track_spacing: 1
     track_start: 10
     power_utilization: 0.25
-    power_utilization_met5: 1
+    power_utilization_met5: 1.0
 ```
+<!---tech-->
 
-Power must be delivered to the cells from the topmost metal layers all the way down to the transistors, in a fashion that minimizes the overall resistance of the power wires without eating up all the resources that are needed for wiring the cells together. You will learn about power distribution briefly at the end of this course’s lectures, but the preferred method is to place interconnected grids of fat wires on every metal layer. There are tools to check the quality of the `power_distribution` network, which like the post-P&R simulations you did in Lab 2, calculate how the current being drawn by the circuit is transiently distributed across the power grid.
+Power must be delivered to the cells from the topmost metal layers all the way down to the transistors, in a fashion that minimizes the overall resistance of the power wires without eating up all the resources that are needed for wiring the cells together. You will learn about power distribution briefly at the end of this course’s lectures, but the preferred method is to place interconnected grids of wide wires on every metal layer. There are tools to analyze the quality of the `power_distribution` network, which like the post-P&R simulations you did in Lab 1, calculate how the current being drawn by the circuit is transiently distributed across the power grid.
 
-You should not need to touch this block of yaml, because the parameters are tuned for meeting design rules in this technology. However, the important parameter is `power_utilization`, which specifies that approximately 25% of the available routing space on each metal layer should be reserved for power, with the exception of metal 5, which should have 100% coverage.
+You should not need to touch this block of yaml, because the parameters are tuned for meeting design rules in this technology. However, the important parameter is `power_utilization`, which specifies that approximately 25% of the available routing space on each metal layer should be reserved for power, with the exception of Metals 8 and 9, which should have 100% coverage.
 
 ### Clock Tree Synthesis (CTS): Overview
 
@@ -211,26 +220,30 @@ From the `build/par-rundir` folder, execute the following in a terminal with gra
 ```shell
 ./generated-scripts/open_chip
 ```
-The Innovus GUI will pop up with your layout and your terminal is now the Innovus shell. After the window opens, click anywhere inside the black window at the center of the GUI and press “F” to zoom-to-fit. You should see your entire design, which should look roughly similar to the one below once you disable the via4 and met5 layers (because recall that the power straps in these metal layers were set to 100% coverage) using the right panel by unchecking their respective boxes under the “V” column:
+The Innovus GUI will pop up with your layout and your terminal is now the Innovus shell. After the window opens, click anywhere inside the black window at the center of the GUI and press “F” to zoom-to-fit. You should see your entire design, which should look roughly similar to the one below once you disable the V8, M8, V9, and M9 layers (because recall that the power straps in these metal layers were set to 100% coverage) using the right panel by unchecking their respective boxes under the “V” column:
+
+### Checkoff 1: Innovus 
+
+Demonstrate that you are able to view your design when using Innovus.
 
 <p align="center">
-<img src="./figs/sky130/innovus_window.png" width="500" />
+<img src="./figs/sky130/innovus_window.png" width="500" /> <!---tech-->
 </p>
 
 
-Take a moment to familiarize yourself with the Innovus GUI. You should also toggle between the floorplan, amoeba, and placement views using the buttons in the top right corner of the screen that look like this: <img src="./figs/view_icons.png" width="40" />  and examine how the actual placement of the GCD datapath in ameoba view doesn’t follow our soft placement guidance in floorplan view. This is because our soft placement guidance clearly places the datapath farther away from the pins and would result in a worse clock tree!
+Take a moment to familiarize yourself with the Innovus GUI. You should also toggle between the floorplan, amoeba, and placement views using the buttons that look like this: <img src="/lab3/figs/view_icons.png" width="40" />  and examine how the actual placement of the GCD datapath in ameoba view doesn’t follow our soft placement guidance in floorplan view. This is because our soft placement guidance clearly places the datapath farther away from the pins and would result in a worse clock tree!
 
 Now, let’s take a look at the clock tree a couple different ways. In the right panel, under the “Net” category, hide from view all the types of nets except “Clock”. Your design should now look approximately like this, which shows the clock tree routing:
 
 <p align="center">
-<img src="./figs/sky130/clock_tree_nets.png" width="500" />
+<img src="./figs/sky130/clock_tree_nets.png" width="500" /> <!---tech-->
 </p>
 
 
 We can also see the clock tree in its “tree” form by going to the menu Clock → CCOpt Clock Tree Debugger and pressing OK in the popup dialog. A window should pop up looking approximately like this:
 
 <p align="center">
-<img src="./figs/sky130/clock_tree_debugger.png" width="500" />
+<img src="./figs/sky130/clock_tree_debugger.png" width="500" /> <!---tech-->
 </p>
 
 
@@ -239,35 +252,36 @@ The red dots are the “leaves”, the green triangles are the clock buffers, th
 Now, let’s visualize our critical path. Go to the menu Timing → Debug Timing and press OK in the popup dialog. A window will pop up that looks approximately like this:
 
 <p align="center">
-<img src="./figs/sky130/timing_debug.png" width="500" />
+<img src="./figs/sky130/timing_debug.png" width="500" /> <!---tech-->
 </p>
 
 Examine the histogram. This shows the number of paths for every amount of slack (on the x-axis), and you always want to see a green histogram! The shape of the histogram is a good indicator of how good your design is and how hard the tool is working to meet your timing constraints (*thought experiment #3:* how so, and what would be the the ideal histogram shape?).
 
-Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the `hammer_cts_debug` folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this (with all Layers disabled):
+Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the `hammer_cts_debug` folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this:
 
 <p align="center">
-<img src="./figs/sky130/critical_path_highlight.png" width="500" />
+<img src="./figs/sky130/critical_path_highlight.png" width="500" /> <!---tech-->
 </p>
 
 ---
 
 ### Question 2: Interpreting P&R Timing Reports
-**a) What is the critical path of your design pre- and post-CTS? Is it the same as the post-synthesis critical path?**
+a) What is the critical path of your design pre- and post-CTS? Is it the same as the post-synthesis critical path?
 
-**b) Look in the post-CTS text timing report (`hammer_cts_debug/hammer_cts.all.tarpt`). Find a path inside which the same cell is used more than once. Identify the delay of those instances of that common cell. Can you explain why they are different?**
+b) Look in the post-CTS text timing report (`hammer_cts_debug/hammer_cts.all.tarpt`). Find a path inside which the same type of cell is used more than once. Identify the delay of those instances of that common cell. Can you explain why they are different?
 
-**c) What is the skew between the clock that arrives at the flip-flops at the beginning and end of the post-CTS critical path? Does this skew help or hurt the timing margin calculation?**
+c) What is the skew between the clock that arrives at the flip-flops at the beginning and end of the post-CTS critical path? Does this skew help or hurt the timing margin calculation?
 
 d) (UNGRADED thought experiment #1) Why is it harder to meet both setup and hold timing constraints if the clock tree has large insertion delay?
 
 e) (UNGRADED thought experiment #2) Why does fixing one setup or hold error introduce one or multiple errors? Is it more likely to produce an error of the same, or different type, and why?
 
-f) (UNGRADED thought experiment #3) P&R tools have a goal to minimize power while ensur- ing that all paths have have >0ps of slack. What might a timing path histogram look like in a design that has maximized the frequency it can run at while meeting this goal? Given the histogram obtained here, does it look we can increase our performance? What might we need to improve/change?
+f) (UNGRADED thought experiment #3) P&R tools have a goal to minimize power while ensuring that all paths have have >0ps of slack. What might a timing path histogram look like in a design that has maximized the frequency it can run at while meeting this goal? Given the histogram obtained here, does it look we can increase our performance? What might we need to improve/change?
 
 ---
 
 When you are done, you may exit Innovus by closing the GUI window.
+
 ## Under the Hood: Innovus
 While HAMMER obfuscates a lot from the end-user in terms of tool-based commands, most IC companies directly interface with Innovus and it is useful to know what tool-specific commands you are running in case you need to debug your circuit step-by-step. Therefore, we will now look into par.tcl and follow along using Innovus. Make sure you are in the directory `build/par-rundir` and type:
 
@@ -277,7 +291,7 @@ innovus -common_ui
 Now, follow `par.tcl` command-by-command, copying and pasting the commands to the Innovus shell and looking at the GUI for any changes. You may skip the `puts` commands as they just tell the tool to print out what its doing, and the `write_db` commands which write a checkpoint database between each step of the P&R flow. The steps that you will see significant changes are listed below. As you progress through the steps, feel free to zoom in to investigate what is going on with the design, look at the extra TCL files that are sourced, and cross-reference the commands with the command reference manual at `/home/ff/eecs151/labs/manuals/TCRcom.pdf`.
 
 1. After the command sourcing `floorplan.tcl`
-2. After the command sourcing power `straps.tcl`
+2. After the command sourcing `power_straps.tcl`
 3. After the command `edit pin`
 4. After the command `place_opt_design`
 
@@ -287,11 +301,11 @@ After the `ccopt_design` command is run, you may see a bunch of white X markers 
 
 ### Question 3: Understanding P&R Steps
 
-**a) Submit a snapshot of your design for each of the four steps described above (use whichever Innovus view you deem is most appropriate to show the changes of each step). Make sure the via4 and met5 layers are not visible, and your design is zoomed-to-fit. Describe how the design layout changes for each major step in their respective figure captions.**
+a) Submit a snapshot of your design for each of the four steps described above (use whichever Innovus view you deem is most appropriate to show the changes of each step). Make sure the V8 M8 V9 M9 layers are not visible, and your design is zoomed-to-fit. Describe how the design layout changes for each major step in their respective figure captions.
 
-**b) Examine the power straps on met1, in relation to the cells. You will need to zoom in far enough to see the net label on the straps. What does their pattern tell you about how digital standard cells are constructed?**
+b) Examine the power straps on M1, in relation to the cells. You will need to zoom in far enough to see the net label on the straps. What does their pattern tell you about how digital standard cells are constructed?
 
-**c) Take a note of the orientations of power straps and routing metals. If you were to place pins on the right side of this block instead of the bottom, what metal layers could they be on?**
+c) Take a note of the orientations of power straps and routing metals. If you were to place pins on the right side of this block instead of the bottom, what metal layers could they be on?
 
 ---
 
@@ -300,42 +314,46 @@ Now zoom in to one of the cells and click the box next to “Cell” on the righ
 ## Project Preparation
 ---
 ### Question 4: ALU
-In this question, you will be designing and testing an ALU for later use in the semester. A header file containing define statements for operations (`ALUop.vh`) is provided inside the `src` directory of this lab. This file has already been included in an ALU template given to you in the same folder (`ALU.v`), but you may need to modify the include statement to match the correct path of the header file. Compare ALUop input of your ALU to the define statements inside the header file to select the function ALU is currently running. Definition of the functions is given below:
+In this question, you will be designing and testing an ALU for later use in the semester. A header file containing define statements for operations (`ALUop.vh`) is provided inside the `src` directory of this lab. This file has already been included in an ALU template given to you in the same folder (`ALU.v`), but you may need to modify the include statement to match the correct path of the header file. Compare `ALUop` input of your ALU to the define statements inside the header file to select the function ALU is currently running. For `ADD` and `SUB`, treat the operands as unsigned integers and ignore overflow in the result. Definition of the functions is given below:
   
 | Op Code |                         Definition                        |
 |:-------:|:---------------------------------------------------------:|
-|   ADD   |                        Add A and B                        |
-|   SUB   |                     Substrate B from A                    |
-|   AND   |                    Bitwise `and` A and B                    |
-|    OR   |                     Bitwise `or` A and B                    |
-|   XOR   |                    Bitwise `xor` A and B                    |
+|   ADD   |                         Add A and B                       |
+|   SUB   |                      Subtract B from A                    |
+|   AND   |                    Bitwise `and` A and B                  |
+|    OR   |                     Bitwise `or` A and B                  |
+|   XOR   |                    Bitwise `xor` A and B                  |
 |   SLT   |        Perform a signed comparison, Out=1 if  A < B       |
 |   SLTU  |      Perform an unsigned comparison, Out = 1 if A < B     |
 |   SLL   |   Logical shift left A by an amount indicated by B[4:0]   |
-|   SLA   | Arithmetic shift right A by an amount indicated by B[4:0] |
+|   SRA   | Arithmetic shift right A by an amount indicated by B[4:0] |
 |   SRL   |   Logical shift right A by an amount indicated by B[4:0]  |
 |  COPY_B |                    Output is equal to B                   |
 |   XXX   |                        Output is 0                        |
 
 Given these definitions, complete `ALU.v` and write a testbench tb `ALU.v` that checks all these operations with random inputs at least a 100 times per operation and outputs a PASS/FAIL indicator. For this lab, we will only check for effort and not correctness, but you will need it to work later!
 
+For this question, submit the code for both your ALU module as well as for the testbench.
+
 ---
+
+### Checkoff 2: ALU
+
+Demonstrate the functionality of your ALU and testbench.
 
 ## Lab Deliverables
 
-### Lab Due: 11:59 PM, Friday October 1st, 2021
+### Lab Due: 11:59 PM, 2 weeks after your registered lab section.
 
-- Submit a written report with all 4 questions answered to Gradescope
-- Checkoff with an ASIC lab TA
+- **Submit** a written report in PDF with all 4 questions answered to Gradescope
+- **Checkoff** with an ASIC lab TA
 
 ## Acknowledgement
 
 This lab is the result of the work of many EECS151/251 GSIs over the years including:
-
 Written By:
 - Nathan Narevsky (2014, 2017)
 - Brian Zimmer (2014)
-
 Modified By:
 - John Wright (2015,2016)
 - Ali Moin (2018)
@@ -345,3 +363,6 @@ Modified By:
 - Harrison Liew (2020)
 - Sean Huang (2021)
 - Daniel Grubb, Nayiri Krzysztofowicz, Zhaokai Liu (2021)
+- Dima Nikiforov (2022)
+- Erik Anderson, Roger Hsiao, Hansung Kim, Richard Yan (2022)
+- Chengyi Zhang (2023)
