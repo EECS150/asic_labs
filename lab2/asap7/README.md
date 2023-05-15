@@ -186,7 +186,7 @@ following command in the lab directory:
     make buildfile
 
 This generates a file with make targets specific to the constraints we have provided inside the YAML files. If you have not run `make clean` after simulating, this file should already be generated.
-`make buildfile` also copies and extracts a tarball of the ASAP7 PDK to your local workspace. It will take a while to finish if you run this command first time. The extracted PDK is not deleted when you do `make clean` to avoid unnecessarily rebuilding the PDK. To explicitly remove it, you need to remove the build folder (and you should do it once you finish the lab to save your allocated disk space since the PDK is huge).<!---tech-->
+`make buildfile` also copies and extracts a tarball of the ASAP7 PDK to your local workspace. It will take a while to finish if you run this command first time. The extracted PDK is not deleted when you do `make clean` to avoid unnecessarily rebuilding the PDK. To explicitly remove it, you need to remove the build folder (and you should do it once you finish the lab to save your allocated disk space since the PDK is huge). <!---tech-->
 To synthesize the GCD, use the following command:
 
     make syn
