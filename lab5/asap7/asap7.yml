@@ -1,7 +1,6 @@
 # Technology Setup
 # Technology used is ASAP7
-vlsi.core.technology: asap7
-vlsi.core.node: 7
+vlsi.core.technology: hammer.technology.asap7
 technology.asap7.tarball_dir: "/home/ff/eecs151/asic/technology/asap7"
 
 vlsi.core.max_threads: 4
@@ -21,53 +20,43 @@ vlsi.inputs.mmmc_corners: [
 ]
 
 # SRAM Compiler compiler options
-vlsi.core.sram_generator_tool: "sram_compiler"
+vlsi.core.sram_generator_tool: "hammer.technology.asap7.sram_compiler"
 # You should specify a location for the SRAM generator in the tech plugin
 vlsi.core.sram_generator_tool_path: ["/home/ff/eecs151/asic/hammer/src/hammer-vlsi/technology/asap7"]
 vlsi.core.sram_generator_tool_path_meta: "append"
 # Specify this since we are not using macrocompiler
-vlsi.inputs.sram_parameters: "/home/ff/eecs151/asic/hammer/src/hammer-vlsi/technology/asap7/sram-cache.json"
+vlsi.inputs.sram_parameters: "/scratch/nk/hammer/hammer/technology/asap7/sram-cache.json"  # TODO
 vlsi.inputs.sram_parameters_meta: ["transclude", "json2list"]
 
 # Tool options. Replace with your tool plugin of choice.
 # Genus options
-vlsi.core.synthesis_tool: "genus"
-vlsi.core.synthesis_tool_path: ["/home/ff/eecs151/asic/hammer-cadence-plugins/synthesis"]
-vlsi.core.synthesis_tool_path_meta: "append"
+vlsi.core.synthesis_tool: "hammer.synthesis.genus"
 synthesis.genus.version: "191"
 
 # Innovus options
-vlsi.core.par_tool: "innovus"
-vlsi.core.par_tool_path: ["/home/ff/eecs151/asic/hammer-cadence-plugins/par"]
-vlsi.core.par_tool_path_meta: "append"
-par.innovus.version: "191"
+vlsi.core.par_tool: "hammer.par.innovus"
+par.innovus.version: "191" # TODO
 par.innovus.design_flow_effort: "standard"
 par.inputs.gds_merge: true
 
 # Calibre options
-vlsi.core.drc_tool: "calibre"
-vlsi.core.drc_tool_path: ["/home/ff/eecs151/asic/hammer-mentor-plugins/drc"]
-vlsi.core.lvs_tool: "calibre"
-vlsi.core.lvs_tool_path: ["/home/ff/eecs151/asic/hammer-mentor-plugins/lvs"]
-drc.calibre.calibre_drc_bin: "/share/instsww/mgc/calibre2017/aoi_cal_2017.4_19.14/bin/calibre"
-drc.calibre.calibredrv_bin: "/share/instsww/mgc/calibre2017/aoi_cal_2017.4_19.14/bin/calibredrv"
+vlsi.core.drc_tool: "hammer.drc.calibre"
+vlsi.core.lvs_tool: "hammer.lvs.calibre"
+drc.calibre.calibre_drc_bin: "/share/instsww/mgc/CALIBRE/bin/calibre"
+drc.calibre.calibredrv_bin: "/share/instsww/mgc/CALIBRE/bin/calibredrv"
 drc.calibre.MGC_HOME: "/shared/instsww/mgc"
-lvs.calibre.calibre_lvs_bin: "/share/instsww/mgc/calibre2017/aoi_cal_2017.4_19.14/bin/calibre"
-lvs.calibre.calibredrv_bin: "/share/instsww/mgc/calibre2017/aoi_cal_2017.4_19.14/bin/calibredrv"
-lvs.calibre.v2lvs_bin: "/share/instsww/mgc/calibre2017/aoi_cal_2017.4_19.14/bin/v2lvs"
+lvs.calibre.calibre_lvs_bin: "/share/instsww/mgc/CALIBRE/bin/calibre"
+lvs.calibre.calibredrv_bin: "/share/instsww/mgc/CALIBRE/bin/calibredrv"
+lvs.calibre.v2lvs_bin: "/share/instsww/mgc/CALIBRE/bin/v2lvs"
 lvs.calibre.MGC_HOME: "/shared/instsww/mgc"
 
 # VCS options
-vlsi.core.sim_tool: "vcs"
-vlsi.core.sim_tool_path: ["/home/ff/eecs151/asic/hammer-synopsys-plugins/sim"]
-vlsi.core.sim_tool_path_meta: "append"
-sim.vcs.version: "P-2019.06"
+vlsi.core.sim_tool: "hammer.sim.vcs"
+sim.vcs.version: "P-2019.06"  # TODO
 
 # Voltus options
-vlsi.core.power_tool: "voltus"
-vlsi.core.power_tool_path: ["/home/ff/eecs151/asic/hammer-cadence-plugins/power"]
-vlsi.core.power_tool_path_meta: "append"
-power.voltus.version: "181"
+vlsi.core.power_tool: "hammer.power.voltus"
+power.voltus.version: "181"  # TODO
 
 # Generate Make include to aid in flow
 vlsi.core.build_system: make
@@ -130,7 +119,8 @@ vlsi.inputs.pin.assignments: [
   {pins: "*", layers: ["M5", "M7"], side: "bottom"}
 ]
 
-# Slurm options (TODO put these in their own yaml file)
+# Slurm options
+# TODO: put these in their own yaml file
 vlsi.submit.command: "slurm"
 vlsi.submit.settings:
   - slurm: {srun_binary: "/home/ff/eecs151/tools-151/scripts/srun151", extra_args: []}
