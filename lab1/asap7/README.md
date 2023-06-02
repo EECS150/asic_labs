@@ -161,7 +161,6 @@ sim.inputs:
   tb_name: "fir_tb"
   defines:
     - "CLOCK_PERIOD=1.00"
-~
 ```
 
 This is a snippet of Hammer IR in the `sim` namespace. These keys are consumed by Hammer to configure the simulation.
