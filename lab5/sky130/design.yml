@@ -1,0 +1,68 @@
+# Specify Global Variables
+dot.clockPeriod: &CLK_PERIOD "5.0ns"
+dot.verilogSrc: &VERILOG_SRC
+  - "src/dot_product.v"
+  - "/home/ff/eecs151/verilog_lib/EECS151.v"
+  # Add more source files here if you like
+
+# Specify clock signals
+vlsi.inputs.clocks: [
+  {name: "clk", period: *CLK_PERIOD, uncertainty: "0.1ns"}
+]
+
+# If you want to syn/par a different module, replace synthesis.inputs.top_module
+
+# Synthesis Constraints
+synthesis.inputs:
+  top_module: "dot_product"
+  input_files: *VERILOG_SRC
+
+# Placement Constraints
+vlsi.inputs.placement_constraints:
+  - path: "dot_product"
+    type: toplevel
+    x: 0
+    y: 0
+    width:  100
+    height: 100
+    margins:
+      left:   0
+      right:  0
+      top:    0
+      bottom: 0
+
+  - path: "dot_product/sram_a"
+    type: hardmacro
+    x: 35.64
+    y: 10.8
+    width: 18.848
+    height: 19.296
+    orientation: r0
+    top_layer: M4
+  - path: "dot_product/sram_b"
+    type: hardmacro
+    x: 71.28
+    y: 10.8
+    width: 18.848
+    height: 19.296
+    orientation: r0
+    top_layer: M4
+  - path: "dot_product/place_obs_bottom"
+    type: obstruction
+    obs_types: ["place"]
+    x: 0
+    y: 0
+    width: 100
+    height: 1.08 # 1 core site tall, necessary to avoid shorts
+
+# Pin placement constraints
+vlsi.inputs.pin_mode: generated
+vlsi.inputs.pin.generate_mode: semi_auto
+vlsi.inputs.pin.assignments: [
+  {pins: "*", layers: ["M5", "M7"], side: "bottom"}
+]
+
+# # SRAMs seem to cause these cells to fail legalization during CTS.
+# # Illegal placement causes incomplete clock tree -> fails sim
+# vlsi.inputs.dont_use_mode: "append"
+# vlsi.inputs.dont_use_list: ["BUFx16f_ASAP7_75t_R", "BUFx16f_ASAP7_75t_L", "BUFx16f_ASAP7_75t_SL", "BUFx16f_ASAP7_75t_SRAM"]
