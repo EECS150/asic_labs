@@ -1,0 +1,17 @@
+# General Notes About These Labs
+
+- update CAD tool versions to latest?
+- don't create a new lab repo by copying all files, instead pull all commits and change the repo's origin to a new repo, so that we keep track of which changes were made then
+- there is lots of non-tech related info in the asap7/sky130.yml files...is it worth it to decouple these in a tools.yml, or will this further confuse students?
+- in general there are tons of repeated files. so make sure to copy any changes to all correct locations
+
+
+- should we symlink all identical files? e.g.:
+    - tech.yml files to a central location, since for labs 2-5 they're identical
+    - verilog src files
+- should we put all YAML config files into a configs/ directory, so it de-clutters the main lab folder? again, this might backfire and further confuse studentss
+- these labs are in desperate need of an accompanying set of instruction slides
+- ideally we create a lab6 with some of the DRC/LVS content from lab 5 but get students to practice fixing the errors
+- remove unnecessary stuff from Makefile?
+- in lab4 makefile, sim-gl-par gets removed as a dependency of sim-to-power. I'm assuming dependencies were being accidentally rebuilt so a TA removed this, but needs to be tested.
+    $(INPUT_PWR_SIM_GL_DB) sim-to-power: $(HAMMER_D_MK) sim-gl-par
