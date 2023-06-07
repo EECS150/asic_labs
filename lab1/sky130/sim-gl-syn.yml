@@ -20,3 +20,4 @@ sim.inputs:
   tb_name: "fir_tb"
   defines: 
     - "CLOCK_PERIOD=1.00"
+  defines_meta: append
