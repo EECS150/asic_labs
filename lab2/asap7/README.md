@@ -203,43 +203,54 @@ Now open the
 file and look at the first block of text you see. It should look similar to this:
 
 ```text
-Path 1: MET (474 ps) Setup Check with Pin GCDdpath0/A_reg_reg[15]/CLK->D
-View: PVT_0P63V_100C.setup_view
-Group: clk
-Startpoint: (R) GCDdpath0/B_reg_reg[5]/CLK
-Clock: (R) clk
-Endpoint: (F) GCDdpath0/A_reg_reg[15]/D
-Clock: (R) clk
-Capture Launch
-Clock Edge:+ 1000 0
-Src Latency:+ 0 0
-Net Latency:+ 0 (I) 0 (I)
-Arrival:= 1000 0
-Setup:- 25
-Uncertainty:- 0
-Required Time:= 975
-Launch Clock:- 0
-Data Path:- 501
-Slack:= 474
-#---------------------------------------------------------------------------------------------------------------------
-# Timing Point Flags Arc Edge Cell Fanout Load Trans Delay Arrival Instance
-# (fF) (ps) (ps) (ps) Location
-#---------------------------------------------------------------------------------------------------------------------
-GCDdpath0/B_reg_reg[5]/CLK - - R (arrival) 16 - 0 - 0 (-,-)
-GCDdpath0/B_reg_reg[5]/QN - CLK->QN R ASYNC_DFFHx1_ASAP7_75t_SL 5 3.3 42 48 48 (-,-)
-GCDdpath0/g1181/Y - A->Y F INVx1_ASAP7_75t_SL 2 1.2 20 10 58 (-,-)
-GCDdpath0/g1162__8246/Y - A->Y F OR2x2_ASAP7_75t_SL 2 1.3 12 17 76 (-,-)
-GCDdpath0/g1152__6260/Y - A1->Y F AO32x1_ASAP7_75t_SL 1 0.7 13 19 95 (-,-)
-GCDdpath0/g1144__2883/Y - C1->Y R AOI322xp5_ASAP7_75t_SL 1 0.7 47 19 114 (-,-)
-GCDdpath0/g1138__5115/Y - B2->Y F AOI221xp5_ASAP7_75t_SL 1 0.7 37 14 128 (-,-)
-GCDdpath0/g1137__1881/Y - A2->Y R O2A1O1Ixp33_ASAP7_75t_SL 3 2.2 72 36 164 (-,-)
-GCDctrl0/g446__5526/Y - B->Y F NAND2xp5_ASAP7_75t_SL 2 1.3 36 17 182 (-,-)
-GCDctrl0/g444/Y - A->Y R INVx1_ASAP7_75t_SL 18 10.0 102 52 234 (-,-)
-GCDdpath0/g1265/Y - A->Y F INVx1_ASAP7_75t_L 17 9.4 91 63 297 (-,-)
-GCDdpath0/g1232__9945/Y - B->Y R NOR2xp33_ASAP7_75t_L 16 9.0 304 154 451 (-,-)
-GCDdpath0/g1193__6417/Y - C1->Y F AOI222xp33_ASAP7_75t_SL 1 0.7 124 51 501 (-,-)
-GCDdpath0/A_reg_reg[15]/D - - F ASYNC_DFFHx1_ASAP7_75t_SL 1 - - 0 501 (-,-)
-#---------------------------------------------------------------------------------------------------------------------
+Path 1: MET (317 ps) Setup Check with Pin GCDdpath0/A_register/q_reg[15]/CLK->D
+           View: PVT_0P63V_100C.setup_view
+          Group: clk
+     Startpoint: (R) GCDdpath0/B_register/q_reg[0]/CLK
+          Clock: (R) clk
+       Endpoint: (R) GCDdpath0/A_register/q_reg[15]/D
+          Clock: (R) clk
+
+                     Capture       Launch     
+        Clock Edge:+    1000            0     
+       Src Latency:+       0            0     
+       Net Latency:+       0 (I)        0 (I) 
+           Arrival:=    1000            0     
+                                              
+             Setup:-      11                  
+       Uncertainty:-     100                  
+     Required Time:=     889                  
+      Launch Clock:-       0                  
+         Data Path:-     572                  
+             Slack:=     317                  
+
+#------------------------------------------------------------------------------------------------------------------------
+#           Timing Point            Flags    Arc    Edge         Cell           Fanout Load Trans Delay Arrival Instance 
+#                                                                                      (fF)  (ps)  (ps)   (ps)  Location 
+#------------------------------------------------------------------------------------------------------------------------
+  GCDdpath0/B_register/q_reg[0]/CLK -       -       R     (arrival)                 16    -     0     0       0    (-,-) 
+  GCDdpath0/B_register/q_reg[0]/QN  -       CLK->QN R     DFFHQNx1_ASAP7_75t_SL      5  4.0    52    59      59    (-,-) 
+  GCDdpath0/sub_45_24_g488/Y        -       A->Y    F     INVx1_ASAP7_75t_SL         1  0.6    18     9      68    (-,-) 
+  GCDdpath0/sub_45_24_g481__1881/Y  -       B->Y    R     NOR2xp33_ASAP7_75t_SL      2  2.1    70    33     101    (-,-) 
+  GCDdpath0/sub_45_24_g464__6417/Y  -       A->Y    F     MAJIxp5_ASAP7_75t_SL       2  2.0    50    28     129    (-,-) 
+  GCDdpath0/sub_45_24_g462__1666/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    34     164    (-,-) 
+  GCDdpath0/sub_45_24_g460__2883/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     192    (-,-) 
+  GCDdpath0/sub_45_24_g458__9315/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     220    (-,-) 
+  GCDdpath0/sub_45_24_g456__4733/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     248    (-,-) 
+  GCDdpath0/sub_45_24_g454__5115/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     276    (-,-) 
+  GCDdpath0/sub_45_24_g452__6131/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     304    (-,-) 
+  GCDdpath0/sub_45_24_g450__8246/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     332    (-,-) 
+  GCDdpath0/sub_45_24_g448__1705/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     360    (-,-) 
+  GCDdpath0/sub_45_24_g446__1617/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     388    (-,-) 
+  GCDdpath0/sub_45_24_g444__6783/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     416    (-,-) 
+  GCDdpath0/sub_45_24_g442__8428/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     444    (-,-) 
+  GCDdpath0/sub_45_24_g440__6260/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         2  2.0    19    28     472    (-,-) 
+  GCDdpath0/sub_45_24_g438__2398/Y  -       A->Y    F     MAJx2_ASAP7_75t_SL         1  1.2    16    26     498    (-,-) 
+  GCDdpath0/sub_45_24_g436__6417/Y  -       B->Y    F     XOR2xp5_ASAP7_75t_SL       1  0.8    27    20     518    (-,-) 
+  GCDdpath0/g1087__1666/Y           -       A1->Y   F     AO222x2_ASAP7_75t_SL       1  0.8    29    38     556    (-,-) 
+  GCDdpath0/A_register/g87__6161/Y  -       B->Y    R     NAND2xp5_ASAP7_75t_SL      1  0.9    43    16     572    (-,-) 
+  GCDdpath0/A_register/q_reg[15]/D  -       -       R     DFFHQNx1_ASAP7_75t_SL      1    -     -     0     572    (-,-) 
+#------------------------------------------------------------------------------------------------------------------------
 ```
 <!---tech-->
 

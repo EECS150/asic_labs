@@ -19,5 +19,4 @@ sim.inputs:
   tb_dut: "gcd"
   defines: 
     - "CLOCK_PERIOD=5.00"
-    - "FUNCTIONAL"
-    - "UNIT_DELAY=#1"
+  defines_meta: append
