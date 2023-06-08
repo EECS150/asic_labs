@@ -17,3 +17,4 @@ sim.inputs:
   tb_name: "gcd_testbench"
   defines: 
     - "CLOCK_PERIOD=5.00"
+  defines_meta: append

@@ -23,7 +23,7 @@ vlsi.inputs.mmmc_corners: [
 vlsi.core.sram_generator_tool: "hammer.technology.asap7.sram_compiler"
 # Specify this since we are not using macrocompiler
 vlsi.inputs.sram_parameters: "/scratch/nk/hammer/hammer/technology/asap7/sram-cache.json"  # TODO
-# vlsi.inputs.sram_parameters_meta: ["transclude", "json2list"]
+vlsi.inputs.sram_parameters_meta: ["transclude", "json2list"]
 
 # Tool options. Replace with your tool plugin of choice.
 # Genus options
