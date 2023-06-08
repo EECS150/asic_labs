@@ -38,7 +38,7 @@ to see if the shell prints out the path to the Cadence Genus Synthesis program (
 
 
 ## Synthesis Environment
-To perform synthesis, we will be using Cadence Genus. However, we will not be interfacing with Genus directly, we will rather use Hammer. Just like in lab 2, we have set up the basic Hammer flow for your lab exercises using Makefile.
+To perform synthesis, we will be using Cadence Genus. However, we will not be interfacing with Genus directly, we will rather use Hammer. Just like in lab 1, we have set up the basic Hammer flow for your lab exercises using Makefile.
 
 In this lab repository, you will see two sets of input files for Hammer. The first set of files are the source codes for our design that you will explore in the next section. The second set of files are some YAML files (`inst-env.yml`, 
 `sky130.yml`, <!---tech-->
@@ -259,7 +259,7 @@ Since our critical path meets the timing requirements with a 212 ps of slack, th
 
 **b) Which report contains area breakdown by modules in the design?**
 
-**c) What is the cell used for `A_reg_reg[7]`? How much leakage power does `A_reg_reg[7]` contribute? How did you find this?**
+**c) What is the cell used for `A_register/q_reg[7]`? How much leakage power does `A_register/q_reg[7]` contribute? How did you find this?**
 
 ---
 

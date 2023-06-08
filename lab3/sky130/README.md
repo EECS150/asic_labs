@@ -111,8 +111,8 @@ vlsi.inputs.placement_constraints:
     type: "toplevel"
     x: 0
     y: 0
-    width: 150
-    height: 150
+    width: 600
+    height: 600
     margins:
       left: 10
       right: 10
@@ -120,10 +120,10 @@ vlsi.inputs.placement_constraints:
       bottom: 10
   - path: "gcd_coprocessor/GCDdpath0"
     type: "placement"
-    x: 50
-    y: 50
-    width: 50
-    height: 50
+    x: 200
+    y: 200
+    width: 200
+    height: 200
 
 # Pin Placement Constraints
 vlsi.inputs.pin_mode: generated
@@ -227,7 +227,7 @@ The Innovus GUI will pop up with your layout and your terminal is now the Innovu
 Demonstrate that you are able to view your design when using Innovus.
 
 <p align="center">
-<img src="./figs/sky130/innovus_window.png" width="500" /> <!---tech-->
+<img src="/lab3/figs/sky130/innovus_window.png" width="500" /> <!---tech-->
 </p>
 
 
@@ -236,14 +236,14 @@ Take a moment to familiarize yourself with the Innovus GUI. You should also togg
 Now, let’s take a look at the clock tree a couple different ways. In the right panel, under the “Net” category, hide from view all the types of nets except “Clock”. Your design should now look approximately like this, which shows the clock tree routing:
 
 <p align="center">
-<img src="./figs/sky130/clock_tree_nets.png" width="500" /> <!---tech-->
+<img src="/lab3/figs/sky130/clock_tree_nets.png" width="500" /> <!---tech-->
 </p>
 
 
 We can also see the clock tree in its “tree” form by going to the menu Clock → CCOpt Clock Tree Debugger and pressing OK in the popup dialog. A window should pop up looking approximately like this:
 
 <p align="center">
-<img src="./figs/sky130/clock_tree_debugger.png" width="500" /> <!---tech-->
+<img src="/lab3/figs/sky130/clock_tree_debugger.png" width="500" /> <!---tech-->
 </p>
 
 
@@ -252,7 +252,7 @@ The red dots are the “leaves”, the green triangles are the clock buffers, th
 Now, let’s visualize our critical path. Go to the menu Timing → Debug Timing and press OK in the popup dialog. A window will pop up that looks approximately like this:
 
 <p align="center">
-<img src="./figs/sky130/timing_debug.png" width="500" /> <!---tech-->
+<img src="/lab3/figs/sky130/timing_debug.png" width="500" /> <!---tech-->
 </p>
 
 Examine the histogram. This shows the number of paths for every amount of slack (on the x-axis), and you always want to see a green histogram! The shape of the histogram is a good indicator of how good your design is and how hard the tool is working to meet your timing constraints (*thought experiment #3:* how so, and what would be the the ideal histogram shape?).
@@ -260,7 +260,7 @@ Examine the histogram. This shows the number of paths for every amount of slack 
 Now right-click on Path 1 in this window (the critical path), select Show Timing Analyzer and Highlight Path, and select a color. A window will pop up, which is a graphical representation of the timing reports you saw in the `hammer_cts_debug` folder. Poke around the tabs to see all the different representations of this critical path. Back in the main Innovus window, the critical path will be highlighted, showing the chain of cells along the path and the approximate routing it takes to get there, which may look something like this:
 
 <p align="center">
-<img src="./figs/sky130/critical_path_highlight.png" width="500" /> <!---tech-->
+<img src="/lab3/figs/sky130/critical_path_highlight.png" width="500" /> <!---tech-->
 </p>
 
 ---

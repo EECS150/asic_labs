@@ -5,6 +5,10 @@
 - there is lots of non-tech related info in the asap7/sky130.yml files...is it worth it to decouple these in a tools.yml, or will this further confuse students?
 - in general there are tons of repeated files. so make sure to copy any changes to all correct locations
 
+- there are ` <!---tech-->` identifiers in the README.md lab specs that indicates a line has tech-specific info. When you diff 
+  the lab specs (`diff asap7/README.md sky130/README.md`), the only differences should have the ` <!---tech-->` identifier,
+  or be part of a code block with this identifier right below the code block. We can "sync" changes between lab specs this way.
+
 
 - should we symlink all identical files? e.g.:
     - tech.yml files to a central location, since for labs 2-5 they're identical
