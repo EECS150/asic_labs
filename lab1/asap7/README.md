@@ -25,6 +25,8 @@ As with the previous lab, we will be using the Cory instructional machines (agai
 
 To begin this lab, get the project files (again, we recommend working in the `/home/tmp/<your-eecs-username>/`:
 
+TODO: change to `git clone asic_labs.git`
+
 ```shell
 cd /home/tmp/<your-eecs-username>/
 git clone /home/ff/eecs151/labs/lab1
@@ -427,8 +429,8 @@ Now, return back to the `lab2` root directory, run the gate-level simulation, an
 make sim-rtl SIM_RTL_CONF=sim-gl-syn.yml
 ```
 
-To understand what we will see in the waveforms, open `src/post-syn/fir.mapped.sdf`, and go
-to line 259.
+To understand what we will see in the waveforms, open `src/post-syn/fir.mapped.sdf`, and go to 
+line 259. <!---tech-->
 
 ```shell 
 (CELL
@@ -444,9 +446,12 @@ to line 259.
 ```
 <!---tech-->
 
-The above text describes the delay for a cell of type `INVx1_ASAP7_75t_SL` for the instance `add0/g833`. <!---tech-->
+The above text describes the delay for a cell of type 
+`INVx1_ASAP7_75t_SL` for the instance `add0/g833`. <!---tech-->
 
-The format of the delay is `minimum:typical:maximum`, which refer to different operating regions that will be discussed in more detail in future labs. Note that this SDF file only specifies maximum delays, which is generally what we want because we need to simulate the worst-case conditions (more on that in future labs). For this specific instance that means that there will be a delay of either 11ps or 7ps, depending on whether the data is transitioning from low to high or from high to low. We know that these delays are in picoseconds because of the declaration on line 12 of the SDF file.
+The format of the delay is `minimum:typical:maximum`, which refer to different operating regions that will be discussed in more detail in future labs. Note that this SDF file only specifies maximum delays, which is generally what we want because we need to simulate the worst-case conditions (more on that in future labs). For this specific instance that means that there will be a delay of either
+11ps or 7ps, <!---tech-->
+depending on whether the data is transitioning from low to high or from high to low. We know that these delays are in picoseconds because of the declaration on line 12 of the SDF file.
 
 Remember that previously we mentioned the timescale option. This is passed to VCS as a `-timescale` flag with the value `1ns/10ps`, which means that a delay of 1 would correspond to an actual delay of 1ns, with a simulation step resolution of 10ps.
 
@@ -513,7 +518,7 @@ Power is arguably the most important metric in modern chip design, as mobile app
 
 Normally, the most accurate power analysis results come from simulating on a post-place-and-routed design (Labs 4 and 5). For now, we have provided the place-and-routed (P&R) outputs and post-P&R simulation outputs in `src/post-par-sim`.
 
-To perform power analysis with Hammer, we must specify a few more things. Take a look at `sim-gl-par.yml`. In addition to the things added in `sim-gl-syn.yml`, there is a new namespace `power` which contains keys that specify Switching Activity Interchange Format (SAIF) files, Standard Parasitic Exchange Format (SPEF) files, and a layout database. The layout database and SPEF files are generated from the P&R tool (saved for future labs). Skimming through the SPEF files, you can glance the words CAP and RES everywhere; these are annotations of the parasitic capacitances and resistances caused by physical layout and connections of logic gates. The SAIF file is dumped from a post-P&R gate-level simulation, and contains a somewhat cryptic annotation of how often nets in the design switch and requires the `sim.inputs.saif keys` in Hammer. A time window over which switching activity is measured is helpful for generating representative traces, such as for workloads that only run after a processor core has booted up. For this lab, the power outputs have been generated in advance.
+To perform power analysis with Hammer, we must specify a few more things. Take a look at `sim-gl-par.yml`. In addition to the things added in `sim-gl-syn.yml`, there is a new namespace `power` which contains keys that specify Switching Activity Interchange Format (SAIF) files, Standard Parasitic Exchange Format (SPEF) files, and a layout database. The layout database and SPEF files are generated from the P&R tool (saved for future labs). Skimming through the SPEF files, you can glance the words CAP and RES everywhere; these are annotations of the parasitic capacitances and resistances caused by physical layout and connections of logic gates. The SAIF file is dumped from a post-P&R gate-level simulation, and contains a somewhat cryptic annotation of how often nets in the design switch and requires the `sim.inputs.saif` key in Hammer. A time window over which switching activity is measured is helpful for generating representative traces, such as for workloads that only run after a processor core has booted up. For this lab, the power outputs have been generated in advance.
 
 Under the hood, Hammer uses Cadence Voltus to analyze power consumption. It maps the
 annotated switching activity onto the layout database, taking into account the circuit parasitics.
