@@ -60,8 +60,8 @@ power.voltus.version: "181"  # TODO
 # Generate Make include to aid in flow 
 vlsi.core.build_system: make
 
-# # Slurm options
-# # TODO: put these in their own yaml file
-# vlsi.submit.command: "slurm"
-# vlsi.submit.settings:
-#   - slurm: {srun_binary: "/home/ff/eecs151/tools-151/scripts/srun151", extra_args: []}
+# Slurm options
+# TODO: put these in their own yaml file
+vlsi.submit.command: "slurm"
+vlsi.submit.settings:
+  - slurm: {srun_binary: "/home/ff/eecs151/tools-151/scripts/srun151", extra_args: []}
