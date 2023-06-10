@@ -1,5 +1,7 @@
 # EECS 151/251A ASIC Labs Fall 22
 
+*** These labs are a work-in-progress. See NOTES doc for full list of repo status.
+
 This lab course consists of 6 labs and a final project. The labs go through the ASIC design flow, from RTL through GDS. 
 These labs are now available in two process technologies, 
 the [ASAP7 7nm Predictive PDK](http://asap.asu.edu/asap/) (a non-implementable finFET technology developed for educational purposes)
