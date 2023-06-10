@@ -1,7 +1,17 @@
 # General Notes About These Labs
 
-- update CAD tool versions to latest?
-- don't create a new lab repo by copying all files, instead pull all commits and change the repo's origin to a new repo, so that we keep track of which changes were made then
+WIP:
+  - lab 5 for sky130:
+    - Verilog assignment requires dual-ported SRAMs, which we don't have with Sram22
+    - DRC section needs to be for klayout (we can't use sky130 Calibre decks bc they are NDA'ed)
+    - unclear how to teach LVS, netgen doesn't work well (it just dumps a text file...)
+  - project for sky130:
+    - does the project need dual-ported SRAMs for the cache? i.e. will single-ported make things much more difficult?
+
+
+Other:
+- update CAD tool versions to latest? maybe not because there's only Innovus 191 on inst servers
+- don't create a new lab repo per semester, just create tagged branches for each semester
 - there is lots of non-tech related info in the asap7/sky130.yml files...is it worth it to decouple these in a tools.yml, or will this further confuse students?
 - in general there are tons of repeated files. so make sure to copy any changes to all correct locations
 
